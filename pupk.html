@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Pramuka & Pengetahuan Umum - Esai</title>
+    <style>
+        /* ================= CSS ================= */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --success-color: #176b3a;
+            --bg-color: #f4f6f8;
+            --text-color: #17212b;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 30px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        h1 { text-align: center; color: var(--primary-color); margin-top: 0; }
+        .subtitle { text-align: center; color: #667085; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 15px; text-align: center; }
+        .form-group input { padding: 12px 15px; font-size: 16px; border: 1px solid #d9dee5; border-radius: 8px; width: 100%; max-width: 350px; text-align: center; }
+        button { border: 0; border-radius: 8px; padding: 12px 20px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #cbd5e1 !important; cursor: not-allowed; }
+        .btn-primary { background: var(--success-color); color: #fff; width: 100%; max-width: 350px; }
+        .btn-secondary { background: var(--accent-color); color: #fff; width: 100%; max-width: 350px; }
+        .btn-admin { background: #344054; color: #fff; margin-top: 20px; font-size: 13px; }
+        
+        .exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee; position: sticky; top: 0; background: #fff; z-index: 10; padding-top: 10px;}
+        .timer { font-size: 22px; font-weight: 700; color: var(--secondary-color); background: #fef3f2; padding: 5px 15px; border-radius: 6px; border: 1px solid #fecdca; }
+        
+        .progress-info { text-align: center; font-weight: bold; margin-bottom: 15px; color: var(--accent-color); font-size: 18px; }
+        
+        .question-card { background: #fafbfc; border: 1px solid #e1e4e8; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .question-category { display: inline-block; background: var(--accent-color); color: white; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+        
+        .essay-input { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #d9dee5; font-family: inherit; font-size: 15px; resize: vertical; transition: 0.2s; }
+        .essay-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+        
+        .pagination { display: flex; justify-content: space-between; border-top: 2px solid #eee; padding-top: 20px; margin-top: 10px; }
+        .btn-nav { background: var(--accent-color); color: #fff; max-width: 150px; }
+        .btn-submit { background: var(--success-color); color: #fff; max-width: 200px; display: none; }
+        
+        .result-box { text-align: center; }
+        .score { font-size: 70px; font-weight: 900; color: var(--success-color); margin: 10px 0; }
+        
+        .history-box { max-width: 400px; margin: 25px auto 0 auto; text-align: left; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #d9dee5; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .history-title { font-size: 15px; margin-top: 0; color: #344054; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .history-list { list-style-type: none; padding: 0; margin: 0; font-size: 14px; color: #667085; }
+        .history-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
+        .history-list li:last-child { border-bottom: none; }
+        .action-buttons { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 25px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ================= HTML ================= -->
+    <div id="screenLogin" class="screen active">
+        <h1>Ujian Kepramukaan & Umum</h1>
+        <div class="subtitle">Format Esai (100 Soal): 40 PU, 40 PK, 20 Sejarah</div>
+        
+        <div class="form-group">
+            <input type="text" id="participantName" placeholder="Masukkan Nama Lengkap Anda" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <button class="btn-primary" onclick="startExam()">Mulai Ujian (10 Menit)</button>
+        </div>
+        
+        <div style="text-align:center; margin-top:50px; border-top:1px solid #eee; padding-top:20px;">
+            <p style="font-size:12px; color:#667085;">Menu Pembina / Admin</p>
+            <button class="btn-admin" onclick="alert('Data nilai otomatis tersimpan di Google Sheets Anda.')">📥 Lihat Nilai di Google Sheets</button>
+            <button class="btn-admin" onclick="clearDatabase()" style="background:#b42318;">Hapus Riwayat di Perangkat Ini</button>
+        </div>
+    </div>
+
+    <div id="screenExam" class="screen">
+        <div class="exam-header">
+            <div><strong>Peserta:</strong> <span id="displayName"></span></div>
+            <div class="timer">Waktu: <span id="timeDisplay">10:00</span></div>
+        </div>
+        
+        <div class="progress-info" id="progressInfo">Halaman 1</div>
+        
+        <div id="questionsContainer"></div>
+        
+        <div class="pagination">
+            <button class="btn-nav" id="btnPrev" onclick="changePage(-1)">&#8592; Sebelumnya</button>
+            <button class="btn-nav" id="btnNext" onclick="changePage(1)">Selanjutnya &#8594;</button>
+            <button class="btn-submit" id="btnSubmit" onclick="submitExam()">Kumpulkan Ujian</button>
+        </div>
+    </div>
+
+    <div id="screenResult" class="screen">
+        <div class="result-box">
+            <h2>Ujian Selesai!</h2>
+            <p>Nama: <strong id="resultName"></strong></p>
+            <div style="font-size: 18px; margin-top:20px;">Skor Akhir Anda (Skala 100):</div>
+            <div class="score" id="resultScore">0</div>
+            <p id="resultDetail" style="color:#667085;"></p>
+            <p style="font-size: 12px; color: #e74c3c; margin-top: -10px;">Catatan: Sistem auto-koreksi bersifat sensitif terhadap kesalahan pengetikan ejaan.</p>
+            
+            <div id="previousScoresContainer" class="history-box">
+                <h3 class="history-title">Riwayat Nilai Sebelumnya</h3>
+                <ul id="previousScoresList" class="history-list"></ul>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="retakeExam()">🔄 Kerjakan Ulang (Soal Diacak Baru)</button>
+                <button class="btn-admin" onclick="location.reload()" style="background: #667085; width:100%; max-width:350px;">Ganti Peserta / Ke Halaman Awal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ================= JAVASCRIPT ================= */
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxCiKs-_6BGskO4F2zggTBYxQmcjvrlzADLPqXQfz75C0UVs8tPmcNQ7A9TvBg7BqqMbw/exec';
+
+const rawData = [
+    // --- PENGETAHUAN UMUM (Total 50 Soal) ---
+    ["PU", "Luas wilayah Republik Indonesia", "5.193.252 km²"],
+    ["PU", "Berapa satelit yang ada di planet Pluto?", "1 satelit"],
+    ["PU", "Sungai terpanjang di Indonesia", "Sungai Kapuas Besar"],
+    ["PU", "Berapa luas danau terbesar di Indonesia?", "578 km²"],
+    ["PU", "Provinsi terbanyak penduduknya", "Jawa Timur"],
+    ["PU", "Letak geografis Indonesia terletak diantara", "6° LU - 11° LS dan diantara 95° BT - 141° BT"],
+    ["PU", "Berapa suku bangsa yang ada di Indonesia?", "370 suku bangsa"],
+    ["PU", "Kepanjangan dari ASEAN adalah", "Association of South East Asia Nation"],
+    ["PU", "Kepanjangan dari WHO adalah", "World Health Organization"],
+    ["PU", "Gurun terbesar di dunia adalah", "Gurun Sahara, Afrika Utara"],
+    ["PU", "Pulau terbesar di dunia adalah", "Greenland, Denmark"],
+    ["PU", "Air terjun tertinggi di dunia adalah", "Santo Angel, Venezuela"],
+    ["PU", "Jarak dari bumi ke matahari adalah", "149.6 Juta km"],
+    ["PU", "Kepanjangan dari ILO adalah", "International Labour Organization"],
+    ["PU", "Tata surya terdiri dari berapa planet dan berapa satelit alami?", "9 planet dan 53 bulan alami"],
+    ["PU", "Tinggi air terjun tertinggi adalah", "979 meter"],
+    ["PU", "Luas gurun terbesar adalah", "8.4 Juta km²"],
+    ["PU", "Indonesia memiliki berapa bahasa induk / daerah?", "67 bahasa"],
+    ["PU", "Dr. Ir. H. Soekarno lahir di", "Blitar, Jawa Timur. Pada 6 Juni 1901"],
+    ["PU", "Dasar negara / falsafah negara Indonesia adalah", "Pancasila"],
+    ["PU", "UUD 1945 terdiri dari", "16 bab, 37 pasal, 4 pasal aturan peralihan dan 2 ayat aturan tambahan"],
+    ["PU", "Presiden ke-3 adalah", "B.J. Habibie"],
+    ["PU", "Indonesia adalah negara berdasarkan", "Hukum"],
+    ["PU", "Kekuasaan tertinggi di Indonesia berada di tangan", "MPR"],
+    ["PU", "Kepanjangan dari UN adalah", "United Nations"],
+    ["PU", "Letak geografis Indonesia?", "Di antara dua benua (Asia dan Australia) serta dua samudra (Samudra Hindia dan Samudra Pasifik)"],
+    ["PU", "Penerangan?", "Lampu / alat untuk menerangi"],
+    ["PU", "P dan K?", "Pendidikan dan Kebudayaan"],
+    ["PU", "Danau terbesar?", "Danau Toba"],
+    ["PU", "Pulau terbesar?", "Pulau Kalimantan (di Indonesia) / Greenland (di dunia)"],
+    ["PU", "UNICEF?", "United Nations International Children's Emergency Fund"],
+    ["PU", "Keterangan planet Venus?", "Planet terpanas di tata surya dan sering disebut bintang kejora / bintang timur"],
+    ["PU", "Selat terlebar?", "Selat Makassar"],
+    ["PU", "Saturnus brapa satelit?", "146 satelit"],
+    ["PU", "Pluto brapa satelit?", "5 satelit"],
+    ["PU", "Brapa luas wilayah Bali?", "5.780,37 km²"],
+    ["PU", "Brapa luas wilayah Papua?", "319.036,05 km² (seluruh pulau Papua jauh lebih luas, wilayah provinsi Papua sekitar itu)"],
+    ["PU", "Brapa luas Kalimantan?", "743.330 km² (pulau Kalimantan)"],
+    ["PU", "Prasiden pertama juga merupakan?", "Ir. Soekarno (Bapak Proklamator / Pemimpin Besar Revolusi)"],
+    ["PU", "EC?", "European Community (Masyarakat Ekonomi Eropa)"],
+    ["PU", "Planet bercincin?", "Saturnus"],
+    ["PU", "Planet terbesar?", "Jupiter"],
+    ["PU", "Neptunus brapa satelit?", "16 satelit"],
+    ["PU", "Bumi brapa satelit?", "1 satelit (Bulan)"],
+    ["PU", "UNESCO?", "United Nations Educational, Scientific and Cultural Organization"],
+    ["PU", "Gunung tertinggi?", "Gunung Everest (di dunia) / Puncak Jaya / Carstensz Pyramid (di Indonesia)"],
+    ["PU", "Kepulauan terbesar?", "Kepulauan Melayu (Nusantara)"],
+    ["PU", "Benua terbesar?", "Benua Asia"],
+    ["PU", "Air terjun terbesar?", "Air Terjun Iguazu (berdasarkan volume/lebar) / Angel Falls (tertinggi)"],
+    ["PU", "Laut terbesar?", "Laut Filipina"],
+
+    // --- PENGETAHUAN KEPRAMUKAAN (Total 50 Soal) ---
+    ["PK", "Pada tahun berapa Baden-Powell dianugerahi gelar kesatria?", "1909"],
+    ["PK", "Siapakah nama kakek Baden-Powell?", "William T. Smyth"],
+    ["PK", "Tanggal berapakah ayah Baden-Powell meninggal dunia?", "11 Juni 1860"],
+    ["PK", "Di Charterhouse School Baden-Powell mendapatkan julukan...", "Bathing-Towel"],
+    ["PK", "Diusia berapa Baden-Powell menamatkan sekolah di Charterhouse School?", "19 tahun"],
+    ["PK", "Mafeking adalah sebuah kota di...", "Pedalaman Afrika Selatan"],
+    ["PK", "Pengepungan terhadap bangsa Boer selama kurang lebih...", "217 hari"],
+    ["PK", "Raja Dinuzulu, adalah Raja Zulu dari...", "1884-1889"],
+    ["PK", "Istri Baden-Powell adalah...", "Olave St. Clair Soames"],
+    ["PK", "Baden-Powell menghabiskan masa tuanya di...", "Nyeri, Kenya"],
+    ["PK", "Buku Scouting Games di tulis tahun...", "1910"],
+    ["PK", "Di tahun 1897 Baden-Powell mendapatkan penghargaan...", "Metabele Campaign"],
+    ["PK", "Anggota WOSM sekitar...", "31 juta orang"],
+    ["PK", "WSC bertemu setiap...", "3 Tahun sekali"],
+    ["PK", "JPO didirikan pada tahun...", "1916"],
+    ["PK", "Jamnas ke 8 dimana?", "Jatinangor, Sumedang, Jawa Barat"],
+    ["PK", "Jambore Dunia ke 22 berada di...", "Kristianstad, Swedia"],
+    ["PK", "Pada tahun 1939-1947 tidak diadakan jambore karna...", "Perang Dunia ll"],
+    ["PK", "Jambore Dunia V mencapai berapa peserta?", "28.750"],
+    ["PK", "Tahun 1981 Jamnas Indonesia diadakan bersamaan dengan...", "Jambore Asia Pasific 6"],
+    ["PK", "Boedi Oetomo berdiri pada tahun...", "20 Mei 1908"],
+    ["PK", "Thema Jambore Dunia ke 10 adalah...", "The Bamboo Jamboree"],
+    ["PK", "IPINDO berdiri pada tahun...", "13-09-1951"],
+    ["PK", "Pemerintah mengeluarkan KEPPRES no berapa Tentang gerakan pramuka?", "KEPPRES NO. 238/61"],
+    ["PK", "Jambore diambil dari salah satu suku di...", "Afrika"],
+    ["PK", "Nama paman dari Baden-Powell adalah...", "Kolonel Henry Smyth"],
+    ["PK", "Baden-Powell dianugerahi gelar kesatria pada tahun...", "1909"],
+    ["PK", "Pada tahun 1907 Baden-Powell mendapat undangan dari perkumpulan...", "Boys Brigade"],
+    ["PK", "Baden-Powell beserta Lady Baden-Powell menghabiskan masa-masa akhirnya tinggal di Inggris sekitar tahun...", "1935 - 1938"],
+    ["PK", "Buku terakhir yang ditulis Baden-Powell pada tahun 1940 bernama...", "More Sketches of Kenya"],
+    ["PK", "Penghargaan Baden-Powell di Metabele Campaign pada tahun...", "1897"],
+    ["PK", "Warga kehormatan Baden-Powell pada tahun 1920 di daerah mana?", "Poole"],
+    ["PK", "Gelar kehormatan dari Universitas Liverpool didapat pada tahun...", "1929"],
+    ["PK", "Penerbit buku Scouting for Boys adalah...", "Horace Cox"],
+    ["PK", "The Jungle Book merupakan karya dari...", "Rudyard Kipling"],
+    ["PK", "Karang Kehidupan ke-2 dikenal dengan...", "Karang Perjudian"],
+    ["PK", "Baden-Powell menulis buku petunjuk untuk pembina pada tahun...", "1914-1919"],
+    ["PK", "Baden-Powell menerima sebidang tanah dari salah seorang sahabatnya bernama...", "William F. DeBois MacLaren"],
+    ["PK", "Taman tersebut diberi nama...", "Gilwell Park"],
+    ["PK", "Kepanjangan atau singkatan dari WAGGGS adalah...", "World Association of Girl Guides and Girl Scouts"],
+    ["PK", "JPO berdiri pada tahun...", "1916"],
+    ["PK", "Jamnas di Pasar Minggu Jakarta tahun 1955 diselenggarakan oleh...", "IPINDO"],
+    ["PK", "Jamnas VII diselenggarakan di daerah mana?", "Baturaden, Banyumas, Jawa Tengah"],
+    ["PK", "Jambore ke-XV dilaksanakan di negara...", "Kananaskis, Kanada"],
+    ["PK", "Pada tahun 1939 - 1947 tidak ada Jambore Dunia dikarenakan...", "Perang Dunia II"],
+    ["PK", "Peserta jambore dunia berjumlah...", "8.000"],
+    ["PK", "Jambore dunia pertama diikuti berapa negara?", "34 negara"],
+    ["PK", "Jambore dunia ke-3 dikenal dengan sebutan...", "The Jamboree of Mud"],
+    ["PK", "Total pengunjung ke jambore dunia ke-3 berjumlah...", "320.000"],
+    ["PK", "Jambore ke-XXIII dilaksanakan di negara...", "Jepang"],
+
+    // --- SEJARAH TANGERANG (Total 35 Soal) ---
+    ["Sejarah Tangerang", "Secara historis, nama 'Tangerang' pada mulanya berasal dari kata bahasa Sunda 'Tangeran' yang berarti...", "Pertahanan", "Sungai Besar", "Tanda / Batas Tugu", "Kerajaan", 2],
+    ["Sejarah Tangerang", "Tugu 'Tangeran' dibangun oleh putra Sultan Ageng Tirtayasa dari Kesultanan Banten yang bernama...", "Pangeran Jayakarta", "Pangeran Soegiri", "Pangeran Diponegoro", "Aria Wangsakara", 1],
+    ["Sejarah Tangerang", "Batas alam yang memisahkan wilayah kekuasaan VOC (Kompeni Belanda) di timur dan wilayah Kesultanan Banten di barat adalah...", "Sungai Ciliwung", "Sungai Cidurian", "Sungai Cisadane", "Gunung Karang", 2],
+    ["Sejarah Tangerang", "Pada masa perlawanan terhadap VOC, Kesultanan Banten mengirimkan tiga maulana (pemimpin) untuk membuat pertahanan di Tangerang. Ketiga maulana tersebut dikenal dengan sebutan...", "Tiga Macan", "Tilu Tanglu", "Tiga Benteng", "Tri Sula", 1],
+    ["Sejarah Tangerang", "Tilu Tanglu (Tiga Pilar) yang diutus Kesultanan Banten adalah Aria Yudhanegara, Aria Jaya Santika, dan...", "Aria Wiratanudatar", "Tumenggung Suradiningrat", "Aria Wangsakara", "Pangeran Soegiri", 2],
+    ["Sejarah Tangerang", "Daerah yang konon menjadi pusat kedudukan dan pertahanan tiga maulana (Tilu Tanglu) tersebut dipercaya menjadi cikal-bakal kecamatan...", "Balaraja", "Cikupa", "Tigaraksa", "Curug", 2],
+    ["Sejarah Tangerang", "Aria Wangsakara merupakan pahlawan nasional yang sangat dihormati di Kabupaten Tangerang, beliau juga dikenal sebagai tokoh ulama dan keturunan dari raja...", "Mataram", "Sumedang Larang", "Cirebon", "Pajajaran", 1],
+    ["Sejarah Tangerang", "Pemerintahan awal masyarakat Tangerang di bawah pimpinan tiga aria tersebut akhirnya harus tumbang akibat perjanjian penyerahan kekuasaan wilayah ke VOC pada tanggal...", "17 April 1684", "17 Agustus 1945", "9 November 1943", "27 Desember 1943", 0],
+    ["Sejarah Tangerang", "Menurut sejarah, prasasti atau batu bata yang dibangun sebagai 'Tangeran' di wilayah Gerendeng bertuliskan abjad...", "Sunda Wiwitan", "Pegon (Arab Gundul) dengan bahasa Jawa kuno", "Pallawa", "Sansekerta", 1],
+    ["Sejarah Tangerang", "Sebelum berdirinya Kota Tangerang dan Tangsel, seluruh wilayahnya merupakan satu kesatuan di bawah Kabupaten Tangerang yang zaman dahulu dijuluki daerah...", "Sunda Kelapa", "Ommelanden", "Batavia", "Benteng", 3],
+    ["Sejarah Tangerang", "Peraturan Daerah (Perda) Kabupaten Tangerang Nomor 2 Tahun 2020 mengubah ketetapan Hari Jadi Kabupaten Tangerang menjadi tanggal...", "27 Desember 1943", "13 Oktober 1632", "17 April 1684", "9 November 1943", 1],
+    ["Sejarah Tangerang", "Perubahan Hari Jadi Kabupaten Tangerang ke 13 Oktober 1632 didasarkan pada peristiwa heroik...", "Gugurnya Mayor Daan Mogot", "Proklamasi Kemerdekaan", "Diangkatnya Aria Wangsakara menjadi tumenggung", "Penyerahan wilayah Banten ke VOC", 2],
+    ["Sejarah Tangerang", "Pada masa penjajahan militer Jepang (9 November 1943), status pemerintahan Tangerang diubah dari 'Kewedanaan' menjadi...", "Provinsi (Syu)", "Kota Praja", "Kabupaten (Ken)", "Karesidenan", 2],
+    ["Sejarah Tangerang", "Bupati pertama Kabupaten Tangerang yang dilantik pada masa pemerintahan Jepang (1943-1944) adalah...", "Aria Wangsakara", "Raden Pandu Suradiningrat", "Atik Soeardi", "H. Tadjus Sobirin", 2],
+    ["Sejarah Tangerang", "Salah satu peristiwa pertempuran berdarah pejuang kemerdekaan di Tangerang yang menewaskan Mayor Daan Mogot pada awal 1946 dikenal dengan...", "Pertempuran Lengkong", "Bandung Lautan Api", "Palagan Ambarawa", "Puputan Margarana", 0],
+    ["Sejarah Tangerang", "Monumen Palagan Lengkong yang didirikan untuk mengenang peristiwa gugurnya Mayor Daan Mogot secara geografis kini terletak di kawasan...", "Tigaraksa", "BSD (Bumi Serpong Damai)", "Balaraja", "Curug", 1],
+    ["Sejarah Tangerang", "Sebelum pindah ke Tigaraksa, pusat pemerintahan lama Kabupaten Tangerang terletak di wilayah yang kini menjadi...", "Kota Tangerang Selatan", "Kota Tangerang", "Pasar Kemis", "Cikupa", 1],
+    ["Sejarah Tangerang", "Pusat Pemerintahan Kabupaten Tangerang resmi dipindahkan dari pusat kota lama ke Tigaraksa pada tahun...", "1984", "2000", "1993", "2010", 2],
+    ["Sejarah Tangerang", "Julukan paling terkenal bagi Kabupaten Tangerang karena banyaknya pabrik yang mendongkrak ekonomi warga adalah...", "Kota Hujan", "Kota Seribu Industri", "Kota Kembang", "Kota Pelajar", 1],
+    ["Sejarah Tangerang", "Slogan pembangunan Kabupaten Tangerang yang bermakna setia kepada pekerjaan untuk mencapai kesejahteraan masyarakat adalah...", "Teguh Beriman", "Bersih, Relegius, Sejahtera", "Satya Karya Kerta Raharja", "Bhinneka Tunggal Ika", 2],
+    ["Sejarah Tangerang", "Perusahaan daerah (BUMD) pengelola penyediaan air bersih milik Pemerintah Kabupaten Tangerang bernama...", "PDAM Tirta Musi", "PDAM Tirta Daroy", "Perumdam Tirta Kerta Raharja", "PDAM Tirta Pakuan", 2],
+    ["Sejarah Tangerang", "Kuliner tradisional legendaris identik daerah Tangerang berkuah santan kental dengan isian mie beras adalah...", "Sate Bandeng", "Gudeg", "Bika Ambon", "Laksa Tangerang", 3],
+    ["Sejarah Tangerang", "Etnis Tionghoa yang telah berabad-abad bermukim di pesisir Cisadane dan memiliki pembauran budaya unik dengan penduduk lokal Tangerang dikenal dengan sebutan...", "Cina Benteng", "Peranakan Hakka", "Totok", "Tionghoa Singkawang", 0],
+    ["Sejarah Tangerang", "Dalam lambang Kabupaten Tangerang, warna dasar hijau melambangkan...", "Keberanian", "Kesucian", "Kesuburan dan Kemakmuran", "Kewibawaan", 2],
+    ["Sejarah Tangerang", "Tangerang juga dikenal memiliki kerajinan tradisional berupa topi anyaman yang terbuat dari bahan...", "Rotan", "Bambu", "Pandan", "Eceng Gondok", 1],
+    ["Sejarah Tangerang", "Pada masa pergerakan nasional (1926), pernah terjadi pemberontakan buruh dan petani melawan tuan tanah partikelir di wilayah...", "Lengkong", "Balaraja", "Cikupa", "Tigaraksa", 1],
+    ["Sejarah Tangerang", "Nama resmi pusat layanan informasi berbasis website milik Pemkab Tangerang adalah...", "tangerangkab.go.id", "tangerang.id", "kabtangerang.com", "pemda-tangerang.net", 0],
+    ["Sejarah Tangerang", "Bupati Tangerang yang dilantik pada periode 2013-2023 (menjabat dua periode) adalah...", "Ismet Iskandar", "Ahmed Zaki Iskandar", "Andi Ony", "Atik Soeardi", 1],
+    ["Sejarah Tangerang", "Kabupaten Tangerang secara administratif merupakan bagian dari provinsi...", "Jawa Barat", "DKI Jakarta", "Banten", "Jawa Tengah", 2],
+    ["Sejarah Tangerang", "Pakaian adat khas kaum pria Kabupaten Tangerang hasil alkulturasi budaya Sunda, Betawi, dan Tionghoa sering disebut dengan...", "Baju Pangsi", "Baju Sadariah", "Pangsi Tangerangan", "Baju Koko", 2],
+    ["Sejarah Tangerang", "Perpaduan kesenian musik tradisional Betawi dan alat musik gesek Tionghoa yang sangat lekat dengan masyarakat budaya Tangerang adalah...", "Ketoprak", "Gambang Kromong", "Tarling", "Angklung Buhun", 1],
+    ["Sejarah Tangerang", "Nama 'Tigaraksa' konon diyakini masyarakat sebagai bentuk penghormatan dan pengingat akan kebesaran...", "Tiga sungai (Cisadane, Cidurian, Cimanceuri)", "Tiga tokoh Maulana pimpinan pertahanan (Tilu Tanglu)", "Tiga benteng kompeni Belanda", "Tiga raja Banten", 1],
+    ["Sejarah Tangerang", "Dalam bahasa Sansekerta yang diserap ke Sunda Kuno, kata 'Raksa' pada nama 'Tigaraksa' memiliki arti...", "Cahaya", "Memelihara / Menjaga / Penjaga", "Perang", "Benteng", 1],
+    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang pertama melahirkan daerah otonom baru pada tahun 1993, yaitu...", "Kota Serang", "Kota Cilegon", "Kota Tangerang", "Kota Tangerang Selatan", 2],
+    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang kedua kalinya disahkan pada tahun 2008, melahirkan otonomi baru yaitu...", "Kabupaten Serang", "Kota Depok", "Kota Tangerang Selatan (Tangsel)", "Kota Cilegon", 2]
+];
+
+// Otomatis menyesuaikan total soal berdasarkan isi bank soal (Sekarang Genap 100)
+let totalQuestionsInExam = 0; 
+const questionsPerPage = 10;
+let timeRemaining = 600; // 10 Menit
+
+let examQuestions = [];
+let userAnswers = [];
+let currentPage = 0;
+let timerInterval;
+let currentUser = "";
+
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
+// Menyiapkan soal untuk format ESAI dengan pendeteksi pintar
+function prepareExamQuestions() {
+    let puQuestions = rawData.filter(q => q[0] === "PU").map(q => ({
+        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
+    }));
+    
+    let pkQuestions = rawData.filter(q => q[0] === "PK").map(q => ({
+        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
+    }));
+    
+    let sejarahQuestions = rawData.filter(q => q[0] === "Sejarah Tangerang").map(q => ({
+        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
+    }));
+
+    shuffle(puQuestions);
+    shuffle(pkQuestions);
+    shuffle(sejarahQuestions);
+
+    let selectedPU = puQuestions.slice(0, 40); // Akan ambil 40 dari 50 persediaan
+    let selectedPK = pkQuestions.slice(0, 40); // Akan ambil 40 dari 50 persediaan
+    let selectedSejarah = sejarahQuestions.slice(0, 20); // Akan ambil 20 dari persediaan
+
+    let combinedQuestions = [...selectedPU, ...selectedPK, ...selectedSejarah];
+    shuffle(combinedQuestions);
+
+    examQuestions = combinedQuestions;
+    totalQuestionsInExam = examQuestions.length; // Otomatis menjadi 100
+}
+
+function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+function startExam() {
+    const nameInput = document.getElementById("participantName").value.trim();
+    if(!nameInput) {
+        alert("Harap masukkan nama Anda terlebih dahulu!");
+        return;
+    }
+    
+    currentUser = nameInput;
+    document.getElementById("displayName").textContent = currentUser;
+    
+    prepareExamQuestions();
+    
+    userAnswers = new Array(totalQuestionsInExam).fill("");
+    currentPage = 0;
+    timeRemaining = 600; 
+    
+    renderPage();
+    switchScreen('screenExam');
+    
+    document.getElementById("timeDisplay").textContent = formatTime(timeRemaining);
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        document.getElementById("timeDisplay").textContent = formatTime(timeRemaining);
+        
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            forceSubmitExam();
+        }
+    }, 1000);
+}
+
+function retakeExam() {
+    prepareExamQuestions();
+    
+    userAnswers = new Array(totalQuestionsInExam).fill("");
+    currentPage = 0;
+    timeRemaining = 600;
+    
+    renderPage();
+    switchScreen('screenExam');
+    
+    clearInterval(timerInterval);
+    document.getElementById("timeDisplay").textContent = formatTime(timeRemaining);
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        document.getElementById("timeDisplay").textContent = formatTime(timeRemaining);
+        
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            forceSubmitExam();
+        }
+    }, 1000);
+}
+
+function renderPage() {
+    const container = document.getElementById("questionsContainer");
+    container.innerHTML = "";
+    
+    const startIndex = currentPage * questionsPerPage;
+    const endIndex = Math.min(startIndex + questionsPerPage, totalQuestionsInExam);
+    
+    const pageQuestions = examQuestions.slice(startIndex, endIndex);
+    
+    pageQuestions.forEach((q, localIndex) => {
+        const globalIndex = startIndex + localIndex;
+        let currentAnswer = userAnswers[globalIndex];
+        
+        container.innerHTML += `
+            <div class="question-card">
+                <div class="question-category">${q.category}</div>
+                <div class="question-text">${globalIndex + 1}. ${q.text}</div>
+                <div class="options">
+                    <textarea class="essay-input" rows="2" placeholder="Ketik jawaban Anda di sini..." oninput="saveAnswer(${globalIndex}, this.value)">${currentAnswer}</textarea>
+                </div>
+            </div>
+        `;
+    });
+    
+    updatePaginationUI();
+    window.scrollTo(0, 0);
+}
+
+function saveAnswer(globalIndex, value) {
+    userAnswers[globalIndex] = value;
+}
+
+function changePage(direction) {
+    currentPage += direction;
+    renderPage();
+}
+
+function updatePaginationUI() {
+    const totalPages = Math.ceil(totalQuestionsInExam / questionsPerPage);
+    document.getElementById("progressInfo").textContent = `Halaman ${currentPage + 1} dari ${totalPages} (Soal ${currentPage * 10 + 1} - ${Math.min((currentPage + 1) * 10, totalQuestionsInExam)})`;
+    
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnSubmit = document.getElementById("btnSubmit");
+    
+    btnPrev.disabled = (currentPage === 0);
+    
+    if (currentPage === totalPages - 1) {
+        btnNext.style.display = "none";
+        btnSubmit.style.display = "inline-block";
+    } else {
+        btnNext.style.display = "inline-block";
+        btnSubmit.style.display = "none";
+    }
+}
+
+function submitExam() {
+    if(confirm("Apakah Anda yakin ingin mengumpulkan seluruh jawaban Anda?")) {
+        processResults();
+    }
+}
+
+function forceSubmitExam() {
+    alert("Waktu pengerjaan habis! Sistem mengumpulkan jawaban Anda otomatis.");
+    processResults();
+}
+
+// LOGIKA PENILAIAN ESAI
+function processResults() {
+    clearInterval(timerInterval);
+
+    let correctCount = 0;
+
+    examQuestions.forEach((q, index) => {
+        // Mengubah huruf menjadi kecil semua & menghapus spasi awal/akhir agar pengecekan lebih adil
+        let userAns = userAnswers[index].toString().toLowerCase().trim();
+        let correctAns = q.correctAnswer.toString().toLowerCase().trim();
+        
+        if(userAns === correctAns) {
+            correctCount++;
+        }
+    });
+
+    const finalScore = Math.round((correctCount / totalQuestionsInExam) * 100);
+
+    document.getElementById("resultName").textContent = currentUser;
+    document.getElementById("resultScore").textContent = finalScore;
+    document.getElementById("resultDetail").textContent = `Anda berhasil menjawab ejaan dengan tepat ${correctCount} dari total ${totalQuestionsInExam} soal.`;
+    
+    let db = JSON.parse(localStorage.getItem('pramukaTulisDb') || '[]');
+    let pastAttempts = db.filter(entry => entry.nama.toLowerCase() === currentUser.toLowerCase());
+    
+    const prevContainer = document.getElementById("previousScoresContainer");
+    const prevList = document.getElementById("previousScoresList");
+    prevList.innerHTML = "";
+
+    if (pastAttempts.length > 0) {
+        prevContainer.style.display = "block";
+        pastAttempts.forEach((attempt, idx) => {
+            let li = document.createElement("li");
+            li.innerHTML = `<span>Percobaan ${idx + 1} (${attempt.waktu})</span> <strong>Skor: ${attempt.nilai}</strong>`;
+            prevList.appendChild(li);
+        });
+    } else {
+        prevContainer.style.display = "none";
+    }
+    
+    saveToDatabase(currentUser, finalScore, correctCount, totalQuestionsInExam);
+    
+    switchScreen('screenResult');
+    window.scrollTo(0,0);
+}
+
+function saveToDatabase(name, score, correct, total) {
+    let now = new Date();
+    let dateStr = now.toLocaleDateString('id-ID') + " " + now.toLocaleTimeString('id-ID');
+    
+    let db = JSON.parse(localStorage.getItem('pramukaTulisDb') || '[]');
+    db.push({ nama: name, nilai: score, benar: correct, totalSoal: total, waktu: dateStr });
+    localStorage.setItem('pramukaTulisDb', JSON.stringify(db));
+
+    let formData = new FormData();
+    formData.append('action', 'insert');
+    formData.append('waktu', dateStr);
+    formData.append('nama', name);
+    formData.append('nilai', score);
+    formData.append('benar', correct);
+    formData.append('totalSoal', total);
+
+    fetch(scriptURL, { 
+        method: 'POST', 
+        body: formData 
+    })
+    .then(response => console.log('Data berhasil terkirim ke Google Sheets!'))
+    .catch(error => console.error('Gagal mengirim data!', error.message));
+}
+
+function clearDatabase() {
+    if(confirm("AWAS: Anda yakin ingin menghapus seluruh riwayat di perangkat ini?")) {
+        localStorage.removeItem('pramukaTulisDb');
+        alert("Seluruh riwayat berhasil dihapus.");
+    }
+}
+</script>
+
+</body>
+</html>
