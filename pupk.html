@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian Pramuka & Pengetahuan Umum - Esai</title>
+    <title>Ujian Pramuka & Pengetahuan Umum - Pilihan Ganda</title>
     <style>
         /* ================= CSS ================= */
         :root {
@@ -24,7 +24,7 @@
         .subtitle { text-align: center; color: #667085; margin-bottom: 25px; }
         
         .form-group { margin-bottom: 15px; text-align: center; }
-        .form-group input { padding: 12px 15px; font-size: 16px; border: 1px solid #d9dee5; border-radius: 8px; width: 100%; max-width: 350px; text-align: center; }
+        .form-group input[type="text"] { padding: 12px 15px; font-size: 16px; border: 1px solid #d9dee5; border-radius: 8px; width: 100%; max-width: 350px; text-align: center; }
         button { border: 0; border-radius: 8px; padding: 12px 20px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         button:hover { opacity: 0.9; }
         button:disabled { background: #cbd5e1 !important; cursor: not-allowed; }
@@ -41,8 +41,11 @@
         .question-category { display: inline-block; background: var(--accent-color); color: white; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
         .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; }
         
-        .essay-input { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #d9dee5; font-family: inherit; font-size: 15px; resize: vertical; transition: 0.2s; }
-        .essay-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+        /* Format Pilihan Ganda */
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-label { display: flex; align-items: center; padding: 10px 15px; border: 1px solid #d9dee5; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #fff; }
+        .option-label:hover { background: #f1f8ff; border-color: var(--accent-color); }
+        .option-label input[type="radio"] { margin-right: 15px; transform: scale(1.2); cursor: pointer;}
         
         .pagination { display: flex; justify-content: space-between; border-top: 2px solid #eee; padding-top: 20px; margin-top: 10px; }
         .btn-nav { background: var(--accent-color); color: #fff; max-width: 150px; }
@@ -65,7 +68,7 @@
     <!-- ================= HTML ================= -->
     <div id="screenLogin" class="screen active">
         <h1>Ujian Kepramukaan & Umum</h1>
-        <div class="subtitle">Format Esai (100 Soal): 40 PU, 40 PK, 20 Sejarah</div>
+        <div class="subtitle">Format Pilihan Ganda: 100 Soal Diacak dari 315 Bank Soal</div>
         
         <div class="form-group">
             <input type="text" id="participantName" placeholder="Masukkan Nama Lengkap Anda" autocomplete="off">
@@ -105,7 +108,6 @@
             <div style="font-size: 18px; margin-top:20px;">Skor Akhir Anda (Skala 100):</div>
             <div class="score" id="resultScore">0</div>
             <p id="resultDetail" style="color:#667085;"></p>
-            <p style="font-size: 12px; color: #e74c3c; margin-top: -10px;">Catatan: Sistem auto-koreksi bersifat sensitif terhadap kesalahan pengetikan ejaan.</p>
             
             <div id="previousScoresContainer" class="history-box">
                 <h3 class="history-title">Riwayat Nilai Sebelumnya</h3>
@@ -124,150 +126,255 @@
 /* ================= JAVASCRIPT ================= */
 const scriptURL = 'https://script.google.com/macros/s/AKfycbxCiKs-_6BGskO4F2zggTBYxQmcjvrlzADLPqXQfz75C0UVs8tPmcNQ7A9TvBg7BqqMbw/exec';
 
+// DATABASE 315 SOAL
 const rawData = [
-    // --- PENGETAHUAN UMUM (Total 50 Soal) ---
-    ["PU", "Luas wilayah Republik Indonesia", "5.193.252 km²"],
-    ["PU", "Berapa satelit yang ada di planet Pluto?", "1 satelit"],
-    ["PU", "Sungai terpanjang di Indonesia", "Sungai Kapuas Besar"],
-    ["PU", "Berapa luas danau terbesar di Indonesia?", "578 km²"],
-    ["PU", "Provinsi terbanyak penduduknya", "Jawa Timur"],
-    ["PU", "Letak geografis Indonesia terletak diantara", "6° LU - 11° LS dan diantara 95° BT - 141° BT"],
-    ["PU", "Berapa suku bangsa yang ada di Indonesia?", "370 suku bangsa"],
-    ["PU", "Kepanjangan dari ASEAN adalah", "Association of South East Asia Nation"],
-    ["PU", "Kepanjangan dari WHO adalah", "World Health Organization"],
-    ["PU", "Gurun terbesar di dunia adalah", "Gurun Sahara, Afrika Utara"],
-    ["PU", "Pulau terbesar di dunia adalah", "Greenland, Denmark"],
-    ["PU", "Air terjun tertinggi di dunia adalah", "Santo Angel, Venezuela"],
-    ["PU", "Jarak dari bumi ke matahari adalah", "149.6 Juta km"],
-    ["PU", "Kepanjangan dari ILO adalah", "International Labour Organization"],
-    ["PU", "Tata surya terdiri dari berapa planet dan berapa satelit alami?", "9 planet dan 53 bulan alami"],
-    ["PU", "Tinggi air terjun tertinggi adalah", "979 meter"],
-    ["PU", "Luas gurun terbesar adalah", "8.4 Juta km²"],
-    ["PU", "Indonesia memiliki berapa bahasa induk / daerah?", "67 bahasa"],
-    ["PU", "Dr. Ir. H. Soekarno lahir di", "Blitar, Jawa Timur. Pada 6 Juni 1901"],
-    ["PU", "Dasar negara / falsafah negara Indonesia adalah", "Pancasila"],
-    ["PU", "UUD 1945 terdiri dari", "16 bab, 37 pasal, 4 pasal aturan peralihan dan 2 ayat aturan tambahan"],
-    ["PU", "Presiden ke-3 adalah", "B.J. Habibie"],
-    ["PU", "Indonesia adalah negara berdasarkan", "Hukum"],
-    ["PU", "Kekuasaan tertinggi di Indonesia berada di tangan", "MPR"],
-    ["PU", "Kepanjangan dari UN adalah", "United Nations"],
-    ["PU", "Letak geografis Indonesia?", "Di antara dua benua (Asia dan Australia) serta dua samudra (Samudra Hindia dan Samudra Pasifik)"],
-    ["PU", "Penerangan?", "Lampu / alat untuk menerangi"],
-    ["PU", "P dan K?", "Pendidikan dan Kebudayaan"],
-    ["PU", "Danau terbesar?", "Danau Toba"],
-    ["PU", "Pulau terbesar?", "Pulau Kalimantan (di Indonesia) / Greenland (di dunia)"],
-    ["PU", "UNICEF?", "United Nations International Children's Emergency Fund"],
-    ["PU", "Keterangan planet Venus?", "Planet terpanas di tata surya dan sering disebut bintang kejora / bintang timur"],
-    ["PU", "Selat terlebar?", "Selat Makassar"],
-    ["PU", "Saturnus brapa satelit?", "146 satelit"],
-    ["PU", "Pluto brapa satelit?", "5 satelit"],
-    ["PU", "Brapa luas wilayah Bali?", "5.780,37 km²"],
-    ["PU", "Brapa luas wilayah Papua?", "319.036,05 km² (seluruh pulau Papua jauh lebih luas, wilayah provinsi Papua sekitar itu)"],
-    ["PU", "Brapa luas Kalimantan?", "743.330 km² (pulau Kalimantan)"],
-    ["PU", "Prasiden pertama juga merupakan?", "Ir. Soekarno (Bapak Proklamator / Pemimpin Besar Revolusi)"],
-    ["PU", "EC?", "European Community (Masyarakat Ekonomi Eropa)"],
-    ["PU", "Planet bercincin?", "Saturnus"],
-    ["PU", "Planet terbesar?", "Jupiter"],
-    ["PU", "Neptunus brapa satelit?", "16 satelit"],
-    ["PU", "Bumi brapa satelit?", "1 satelit (Bulan)"],
-    ["PU", "UNESCO?", "United Nations Educational, Scientific and Cultural Organization"],
-    ["PU", "Gunung tertinggi?", "Gunung Everest (di dunia) / Puncak Jaya / Carstensz Pyramid (di Indonesia)"],
-    ["PU", "Kepulauan terbesar?", "Kepulauan Melayu (Nusantara)"],
-    ["PU", "Benua terbesar?", "Benua Asia"],
-    ["PU", "Air terjun terbesar?", "Air Terjun Iguazu (berdasarkan volume/lebar) / Angel Falls (tertinggi)"],
-    ["PU", "Laut terbesar?", "Laut Filipina"],
+    // --- PENGETAHUAN UMUM (PU) ---
+    ["PU", "Luas wilayah Republik Indonesia", "5.193.252 km²", "1.904.569 km²", "3.288.683 km²", "7.193.252 km²", 0],
+    ["PU", "Berapa satelit yang ada di planet Pluto?", "5 satelit", "1 satelit", "16 satelit", "23 satelit", 0],
+    ["PU", "Sungai terpanjang di Indonesia", "Sungai Kapuas Besar", "Sungai Musi", "Sungai Mahakam", "Sungai Bengawan Solo", 0],
+    ["PU", "Berapa luas danau terbesar di Indonesia?", "578 km²", "1.130 km²", "320 km²", "450 km²", 0],
+    ["PU", "Provinsi terbanyak penduduknya", "Jawa Barat", "Jawa Timur", "Jawa Tengah", "Sumatera Utara", 0],
+    ["PU", "Letak geografis Indonesia terletak diantara", "6° LU - 11° LS dan diantara 95° BT - 141° BT", "6° LS - 11° LU dan diantara 95° BT - 141° BT", "10° LU - 15° LS dan diantara 90° BT - 120° BT", "11° LU - 6° LS dan diantara 95° BT - 141° BT", 0],
+    ["PU", "Berapa suku bangsa yang ada di Indonesia?", "370 suku bangsa", "1.340 suku bangsa", "250 suku bangsa", "550 suku bangsa", 0],
+    ["PU", "Kepanjangan dari ASEAN adalah", "Association of South East Asia Nation", "Association of South East Asian Nations", "Alliance of South East Asia Nations", "Association of South East American Nations", 0],
+    ["PU", "Kepanjangan dari WHO adalah", "World Health Organization", "World Human Organization", "World Habitat Organization", "World Healing Organization", 0],
+    ["PU", "Gurun terbesar di dunia adalah", "Gurun Sahara, Afrika Utara", "Gurun Gobi, Asia Timur", "Gurun Kalahari, Afrika Selatan", "Gurun Atacama, Amerika Selatan", 0],
+    ["PU", "Pulau terbesar di dunia adalah", "Greenland, Denmark", "Pulau Kalimantan, Indonesia", "Madagaskar", "Papua Nugini", 0],
+    ["PU", "Air terjun tertinggi di dunia adalah", "Santo Angel, Venezuela", "Niagara Falls, AS-Kanada", "Iguazu Falls, Argentina-Brasil", "Victoria Falls, Afrika", 0],
+    ["PU", "Jarak dari bumi ke matahari adalah", "149.6 Juta km", "100.5 Juta km", "250.3 Juta km", "12.7 Juta km", 0],
+    ["PU", "Kepanjangan dari ILO adalah", "International Labour Organization", "International Law Organization", "Internal Labour Organization", "International Land Organization", 0],
+    ["PU", "Tata surya terdiri dari berapa planet dan berapa satelit alami? (Versi klasik)", "9 planet dan 53 bulan alami", "8 planet dan 45 bulan alami", "9 planet dan 33 bulan alami", "10 planet dan 60 bulan alami", 0],
+    ["PU", "Tinggi air terjun tertinggi di dunia adalah", "979 meter", "850 meter", "1.200 meter", "750 meter", 0],
+    ["PU", "Luas gurun terbesar di dunia adalah", "8.4 Juta km²", "5.2 Juta km²", "10.1 Juta km²", "3.5 Juta km²", 0],
+    ["PU", "Indonesia memiliki berapa bahasa induk / daerah?", "67 bahasa", "718 bahasa", "300 bahasa", "150 bahasa", 0],
+    ["PU", "Dr. Ir. H. Soekarno lahir di", "Blitar, Jawa Timur. Pada 6 Juni 1901", "Surabaya, Jawa Timur. Pada 6 Juni 1901", "Yogyakarta. Pada 17 Agustus 1901", "Surakarta, Jawa Tengah. Pada 1 Juni 1901", 0],
+    ["PU", "Dasar negara / falsafah negara Indonesia adalah", "Pancasila", "UUD 1945", "Bhinneka Tunggal Ika", "Burung Garuda", 0],
+    ["PU", "UUD 1945 terdiri dari", "16 bab, 37 pasal, 4 pasal aturan peralihan, 2 ayat aturan tambahan", "15 bab, 36 pasal, 3 pasal aturan peralihan, 2 ayat aturan tambahan", "16 bab, 45 pasal, 4 pasal aturan peralihan, 3 ayat aturan tambahan", "20 bab, 37 pasal, 4 pasal aturan peralihan, 2 ayat aturan tambahan", 0],
+    ["PU", "Presiden ke-3 Republik Indonesia adalah", "B.J. Habibie", "Abdurrahman Wahid", "Soeharto", "Megawati Soekarnoputri", 0],
+    ["PU", "Indonesia adalah negara berdasarkan", "Hukum", "Kekuasaan", "Agama", "Militer", 0],
+    ["PU", "Kekuasaan tertinggi di Indonesia (sebelum amandemen) berada di tangan", "MPR", "DPR", "Presiden", "Mahkamah Agung", 0],
+    ["PU", "Kepanjangan dari UN adalah", "United Nations", "United Network", "Universal Nations", "Union of Nations", 0],
+    ["PU", "Letak geografis Indonesia?", "Di antara dua benua (Asia dan Australia) serta dua samudra (Hindia dan Pasifik)", "Di antara dua benua (Asia dan Eropa) serta dua samudra (Hindia dan Atlantik)", "Di antara dua benua (Asia dan Amerika) serta dua samudra (Pasifik dan Atlantik)", "Di antara benua Australia dan Antartika serta samudra Hindia", 0],
+    ["PU", "Apa singkatan dari P dan K?", "Pendidikan dan Kebudayaan", "Pemuda dan Kesenian", "Pembangunan dan Kesejahteraan", "Pendidikan dan Kesehatan", 0],
+    ["PU", "Danau terbesar di Indonesia?", "Danau Toba", "Danau Singkarak", "Danau Towuti", "Danau Poso", 0],
+    ["PU", "Pulau terbesar di Indonesia?", "Pulau Kalimantan", "Pulau Sumatera", "Pulau Papua", "Pulau Sulawesi", 0],
+    ["PU", "Kepanjangan UNICEF?", "United Nations International Children's Emergency Fund", "United Nations Internal Children's Education Fund", "Universal Nations International Children's Emergency Fund", "United Nations International Council of Educational Fund", 0],
+    ["PU", "Keterangan planet Venus?", "Planet terpanas di tata surya dan sering disebut bintang kejora / bintang timur", "Planet terkecil dan terdekat dengan matahari", "Planet merah yang memiliki dua satelit", "Planet bercincin es yang sangat indah", 0],
+    ["PU", "Selat terlebar di Indonesia?", "Selat Makassar", "Selat Sunda", "Selat Malaka", "Selat Bali", 0],
+    ["PU", "Saturnus memiliki berapa satelit?", "146 satelit", "79 satelit", "27 satelit", "16 satelit", 0],
+    ["PU", "Presiden pertama RI juga mendapat julukan?", "Bapak Proklamator / Pemimpin Besar Revolusi", "Bapak Pembangunan Nasional", "Bapak Pendidikan Nasional", "Bapak Koperasi Indonesia", 0],
+    ["PU", "Kepanjangan EC (dalam istilah Eropa)?", "European Community (Masyarakat Ekonomi Eropa)", "European Council", "Economic Committee", "Eurasian Community", 0],
+    ["PU", "Planet terbesar di tata surya?", "Jupiter", "Saturnus", "Uranus", "Neptunus", 0],
+    ["PU", "Bumi memiliki berapa satelit alami?", "1 satelit (Bulan)", "2 satelit (Phobos dan Deimos)", "Tidak ada satelit alami", "3 satelit", 0],
+    ["PU", "Kepanjangan UNESCO?", "United Nations Educational, Scientific and Cultural Organization", "United Nations Economic, Scientific and Cultural Organization", "United Nations Environmental, Social and Cultural Organization", "Universal Nations Educational, Scientific and Cultural Organization", 0],
+    ["PU", "Benua terbesar di dunia?", "Benua Asia", "Benua Afrika", "Benua Amerika", "Benua Eropa", 0],
+    ["PU", "Laut terbesar di dunia?", "Laut Filipina", "Laut Mediterania", "Laut Tiongkok Selatan", "Laut Karibia", 0],
+    ["PU", "Indonesia disebut juga dengan Negara Kepulauan atau...", "ARCHIPELAGO", "PENINSULA", "CONTINENT", "MARITIME", 0],
+    ["PU", "Berapakah kira-kira jumlah pulau yang ada di Indonesia?", "13.667", "17.504", "10.000", "5.500", 0],
+    ["PU", "Siapakah presiden kedua Indonesia?", "JENDERAL PURN. SOEHARTO", "B.J. HABIBIE", "KH. ABDURRAHMAN WAHID", "IR. SOEKARNO", 0],
+    ["PU", "Apa pekerjaan B.J. Habibie sebelum menjadi presiden ketiga?", "MENJABAT SEBAGAI MENRISTEK DALAM KABINET SOEHARTO", "GUBERNUR DKI JAKARTA", "MENTERI PERTAHANAN", "WAKIL PRESIDEN REPUBLIK INDONESIA", 0],
+    ["PU", "Siapakah presiden keempat Indonesia?", "KH. ABDURRAHMAN WAHID", "MEGAWATI SOEKARNO PUTRI", "B.J. HABIBIE", "SUSILO BAMBANG YUDHOYONO", 0],
+    ["PU", "Siapakah presiden kelima RI?", "MEGAWATI SOEKARNO PUTRI", "KH. ABDURRAHMAN WAHID", "SUSILO BAMBANG YUDHOYONO", "JOKO WIDODO", 0],
+    ["PU", "Sebutkan nama sungai terpanjang di Indonesia dan berapa panjangnya.", "SUNGAI KAPUAS BESAR, KALIMANTAN BARAT DENGAN PANJANG 1.010 KM", "SUNGAI MAHAKAM, KALIMANTAN TIMUR DENGAN PANJANG 920 KM", "SUNGAI MUSI, SUMATERA SELATAN DENGAN PANJANG 750 KM", "SUNGAI BENGAWAN SOLO, JAWA TENGAH DENGAN PANJANG 548 KM", 0],
+    ["PU", "Sebutkan motto dari departemen keuangan RI.", "NAGARA DANA RAKSA", "NAYAGA KARMA WERDHI NAGARA", "TUT WURI HANDAYANI", "BHINNEKA TUNGGAL IKA", 0],
+    ["PU", "Sebutkan motto dari TNI AL.", "JALESVEVA JAYAMAHE", "SWA BHUWANA PAKSA", "KARTIKA EKA PAKSI", "RASTRA SEWAKOTTAMA", 0],
+    ["PU", "Sebutkan motto dari POLRI.", "RASTRA SEWAKOTTAMA", "JALESVEVA JAYAMAHE", "DHARMA KARMA KSHATRIYA", "BHAYANGKARA NEGARA", 0],
+    ["PU", "Indonesia adalah negara kepulauan yang bisa disebut juga dengan?", "Archipelago", "Peninsula", "Benua", "Maritim", 0],
+    ["PU", "Luas wilayah Papua adalah?", "422.981 km²", "319.036 km²", "539.460 km²", "473.600 km²", 0],
+    ["PU", "Berapa satelit yang ada di planet Yupiter?", "16 satelit", "5 satelit", "23 satelit", "1 satelit", 0],
+    ["PU", "Berapa panjang Sungai Kapuas Besar?", "1.010 km", "750 km", "1.140 km", "920 km", 0],
+    ["PU", "Gunung api terbesar di Indonesia terletak di pulau?", "Sangir", "Jawa", "Sumatera", "Sulawesi", 0],
+    ["PU", "Motto Departemen Keuangan?", "Nagara Dana Raksa", "Bhinneka Tunggal Ika", "Tut Wuri Handayani", "Jalesveva Jayamahe", 0],
+    ["PU", "Terowongan Simplon terletak diantara 2 negara, yaitu?", "Swiss dan Itali", "Prancis dan Inggris", "Jerman dan Austria", "Spanyol dan Portugal", 0],
+    ["PU", "Kepanjangan dari IMF", "International Monetary Fund", "International Money Fund", "International Monetary Foundation", "Internal Monetary Fund", 0],
+    ["PU", "Selat terlebar di dunia adalah?", "Selat Davis", "Selat Malaka", "Selat Makassar", "Selat Gibraltar", 0],
+    ["PU", "Selat Tar Tar terletak di negara?", "Rusia", "Turki", "Jepang", "Kanada", 0],
+    ["PU", "Jurang (ngarai) terbesar di dunia adalah?", "Grand Canyon", "Ngarai Sianok", "Colca Canyon", "Fish River Canyon", 0],
+    ["PU", "Berapa luas Teluk Meksiko?", "1,5 juta km²", "2,5 juta km²", "1,0 juta km²", "3,5 juta km²", 0],
+    ["PU", "CGI adalah lembaga yang dikoordinir oleh?", "Bank Dunia", "PBB", "IMF", "WHO", 0],
+    ["PU", "Maskapai penerbangan Malaysia adalah?", "MAS", "SIA", "JAL", "Garuda", 0],
+    ["PU", "Maskapai penerbangan Jepang adalah?", "JAL", "ANA", "MAS", "KAL", 0],
+    ["PU", "Aeroflot adalah maskapai penerbangan dari negara?", "Rusia", "Jerman", "Belanda", "Inggris", 0],
+    ["PU", "Air Ceylon adalah maskapai penerbangan dari negara?", "Srilangka", "India", "Thailand", "Myanmar", 0],
+    ["PU", "Kantor berita di Inggris adalah?", "Reuter", "Antara", "AFP", "AP", 0],
+    ["PU", "Kantor berita di Rusia adalah?", "Tass", "Xinhua", "Kyodo", "Reuter", 0],
+    ["PU", "Lagu kebangsaan Malaysia adalah?", "Negaraku", "Maju Kawan", "Kimigayo", "Indonesia Raya", 0],
+    ["PU", "'Oom Hemmect' adalah lagu kebangsaan dari negara?", "Luxemburg", "Belanda", "Belgia", "Jerman", 0],
+    ["PU", "UUD 1945 bersifat...", "Luwes dan singkat", "Kaku dan panjang", "Mutlak dan tidak bisa diubah", "Sementara dan fleksibel", 0],
+    ["PU", "Lagu kebangsaan dari negara India adalah?", "Yana Gana Mana", "Negaraku", "Kimigayo", "Arirang", 0],
+    ["PU", "SIA adalah maskapai penerbangan dari negara?", "Singapura", "Malaysia", "Swedia", "Spanyol", 0],
+    ["PU", "MENA adalah kantor berita di negara?", "Mesir", "Arab Saudi", "Turki", "Iran", 0],
+    ["PU", "Kepanjangan dari ICRC adalah?", "International Comitte of the Red Cross", "International Council of the Red Cross", "International Center of the Red Cross", "Internal Committee of the Red Cross", 0],
+    ["PU", "Kepanjangan dari IGGI adalah?", "Inter Governmental Groups in Indonesia", "International Governmental Groups in Indonesia", "Inter Government Group of Indonesia", "International Group Government of Indonesia", 0],
+    ["PU", "Kantor berita di Chekoslovakia adalah?", "CTK", "TASS", "AFP", "MENA", 0],
+    ["PU", "Kantor berita di Yugoslavia adalah?", "Tanjug", "Antara", "Xinhua", "Reuter", 0],
+    ["PU", "Apa kepanjangan dari MENA?", "Middle East News Agency", "Middle East National Agency", "Main East News Agency", "Middle Eastern News Association", 0],
+    ["PU", "Apa lagu kebangsaan dari negara Turki?", "Istiqlal Marsi", "Negaraku", "Kashdi", "Al Majid", 0],
+    ["PU", "Apa lagu kebangsaan dari Irlandia?", "Det Erin Remember The Day of Old", "God Save the Queen", "La Marseillaise", "The Star-Spangled Banner", 0],
+    ["PU", "Apa lagu kebangsaan dari negara Jerman?", "Deutschland Ubber Alles", "Oom Hemmect", "La Marseillaise", "Il Canto degli Italiani", 0],
+    ["PU", "Nama penghargaan yang diberikan kepada ilmuwan/orang yang berjasa bagi kehidupan manusia adalah?", "Nobel", "Oscar", "Grammy", "Pulitzer", 0],
+    ["PU", "Arti dari 'Kartika Eka Paksi' adalah?", "Kekuatan, Kesatuan, Kesetiaan", "Keberanian, Kejujuran, Keadilan", "Kebangsaan, Kemanusiaan, Kerakyatan", "Prajurit, Bangsa, Negara", 0],
+    ["PU", "Nama latin dari hewan 'Ikan Duyung' adalah?", "Dugong dugong", "Delphinus delphis", "Orcinus orca", "Physeter macrocephalus", 0],
+    ["PU", "Nama latin dari hewan 'Gajah' adalah?", "Elephas indicus", "Panthera tigris", "Rhinoceros sundaicus", "Bos javanicus", 0],
+    ["PU", "Nama latin dari hewan 'Badak (Jawa)' adalah?", "Rhinoceros sundaicus", "Elephas indicus", "Panthera tigris", "Varanus komodoensis", 0],
+    ["PU", "Nama latin dari hewan 'Buaya' adalah?", "Crocodylus novaeguieae", "Varanus komodoensis", "Python reticulatus", "Naja sputatrix", 0],
+    ["PU", "Maskapai penerbangan Jerman adalah?", "Lufthansa", "KLM", "Air France", "Alitalia", 0],
+    ["PU", "Maskapai penerbangan dari Hongkong adalah?", "Cathay Pasific", "EVA Air", "China Airlines", "JAL", 0],
+    ["PU", "BBC adalah stasiun radio dari negara?", "Inggris", "Amerika Serikat", "Australia", "Kanada", 0],
+    ["PU", "Apa kepanjangan dari DW?", "Deutsch Welle", "Deutsch World", "Dutch Welle", "Denmark Welle", 0],
+    ["PU", "Lagu kebangsaan dari negara Iran adalah?", "Shahansan Ama Zadab Bada", "Istiqlal Marsi", "Negaraku", "Qaumi Taranah", 0],
+    ["PU", "Lagu kebangsaan dari negara Kanada adalah?", "The Maple Lear Forever", "The Star-Spangled Banner", "God Save the King", "Advance Australia Fair", 0],
+    ["PU", "Lagu kebangsaan dari negara Portugal adalah?", "Heiros de Maar", "La Marseillaise", "Himno Nacional", "March Real", 0],
+    ["PU", "Kepanjangan dari ABC adalah?", "Australian Broadcasting Commission", "American Broadcasting Corporation", "Asian Broadcasting Channel", "African Broadcasting Company", 0],
+    ["PU", "Kepanjangan dari EC adalah?", "European Community", "English Community", "European Council", "Eastern Community", 0],
+    ["PU", "Apa nama maskapai penerbangan dari negara Swiss?", "Swiss Air Tranport", "Lufthansa", "KLM", "Austrian Airlines", 0],
+    ["PU", "Kepanjangan dari CGI adalah?", "Consultatif Group for Indonesia", "Consultative Group of International", "Central Group for Indonesia", "Council Group for Indonesia", 0],
 
-    // --- PENGETAHUAN KEPRAMUKAAN (Total 50 Soal) ---
-    ["PK", "Pada tahun berapa Baden-Powell dianugerahi gelar kesatria?", "1909"],
-    ["PK", "Siapakah nama kakek Baden-Powell?", "William T. Smyth"],
-    ["PK", "Tanggal berapakah ayah Baden-Powell meninggal dunia?", "11 Juni 1860"],
-    ["PK", "Di Charterhouse School Baden-Powell mendapatkan julukan...", "Bathing-Towel"],
-    ["PK", "Diusia berapa Baden-Powell menamatkan sekolah di Charterhouse School?", "19 tahun"],
-    ["PK", "Mafeking adalah sebuah kota di...", "Pedalaman Afrika Selatan"],
-    ["PK", "Pengepungan terhadap bangsa Boer selama kurang lebih...", "217 hari"],
-    ["PK", "Raja Dinuzulu, adalah Raja Zulu dari...", "1884-1889"],
-    ["PK", "Istri Baden-Powell adalah...", "Olave St. Clair Soames"],
-    ["PK", "Baden-Powell menghabiskan masa tuanya di...", "Nyeri, Kenya"],
-    ["PK", "Buku Scouting Games di tulis tahun...", "1910"],
-    ["PK", "Di tahun 1897 Baden-Powell mendapatkan penghargaan...", "Metabele Campaign"],
-    ["PK", "Anggota WOSM sekitar...", "31 juta orang"],
-    ["PK", "WSC bertemu setiap...", "3 Tahun sekali"],
-    ["PK", "JPO didirikan pada tahun...", "1916"],
-    ["PK", "Jamnas ke 8 dimana?", "Jatinangor, Sumedang, Jawa Barat"],
-    ["PK", "Jambore Dunia ke 22 berada di...", "Kristianstad, Swedia"],
-    ["PK", "Pada tahun 1939-1947 tidak diadakan jambore karna...", "Perang Dunia ll"],
-    ["PK", "Jambore Dunia V mencapai berapa peserta?", "28.750"],
-    ["PK", "Tahun 1981 Jamnas Indonesia diadakan bersamaan dengan...", "Jambore Asia Pasific 6"],
-    ["PK", "Boedi Oetomo berdiri pada tahun...", "20 Mei 1908"],
-    ["PK", "Thema Jambore Dunia ke 10 adalah...", "The Bamboo Jamboree"],
-    ["PK", "IPINDO berdiri pada tahun...", "13-09-1951"],
-    ["PK", "Pemerintah mengeluarkan KEPPRES no berapa Tentang gerakan pramuka?", "KEPPRES NO. 238/61"],
-    ["PK", "Jambore diambil dari salah satu suku di...", "Afrika"],
-    ["PK", "Nama paman dari Baden-Powell adalah...", "Kolonel Henry Smyth"],
-    ["PK", "Baden-Powell dianugerahi gelar kesatria pada tahun...", "1909"],
-    ["PK", "Pada tahun 1907 Baden-Powell mendapat undangan dari perkumpulan...", "Boys Brigade"],
-    ["PK", "Baden-Powell beserta Lady Baden-Powell menghabiskan masa-masa akhirnya tinggal di Inggris sekitar tahun...", "1935 - 1938"],
-    ["PK", "Buku terakhir yang ditulis Baden-Powell pada tahun 1940 bernama...", "More Sketches of Kenya"],
-    ["PK", "Penghargaan Baden-Powell di Metabele Campaign pada tahun...", "1897"],
-    ["PK", "Warga kehormatan Baden-Powell pada tahun 1920 di daerah mana?", "Poole"],
-    ["PK", "Gelar kehormatan dari Universitas Liverpool didapat pada tahun...", "1929"],
-    ["PK", "Penerbit buku Scouting for Boys adalah...", "Horace Cox"],
-    ["PK", "The Jungle Book merupakan karya dari...", "Rudyard Kipling"],
-    ["PK", "Karang Kehidupan ke-2 dikenal dengan...", "Karang Perjudian"],
-    ["PK", "Baden-Powell menulis buku petunjuk untuk pembina pada tahun...", "1914-1919"],
-    ["PK", "Baden-Powell menerima sebidang tanah dari salah seorang sahabatnya bernama...", "William F. DeBois MacLaren"],
-    ["PK", "Taman tersebut diberi nama...", "Gilwell Park"],
-    ["PK", "Kepanjangan atau singkatan dari WAGGGS adalah...", "World Association of Girl Guides and Girl Scouts"],
-    ["PK", "JPO berdiri pada tahun...", "1916"],
-    ["PK", "Jamnas di Pasar Minggu Jakarta tahun 1955 diselenggarakan oleh...", "IPINDO"],
-    ["PK", "Jamnas VII diselenggarakan di daerah mana?", "Baturaden, Banyumas, Jawa Tengah"],
-    ["PK", "Jambore ke-XV dilaksanakan di negara...", "Kananaskis, Kanada"],
-    ["PK", "Pada tahun 1939 - 1947 tidak ada Jambore Dunia dikarenakan...", "Perang Dunia II"],
-    ["PK", "Peserta jambore dunia berjumlah...", "8.000"],
-    ["PK", "Jambore dunia pertama diikuti berapa negara?", "34 negara"],
-    ["PK", "Jambore dunia ke-3 dikenal dengan sebutan...", "The Jamboree of Mud"],
-    ["PK", "Total pengunjung ke jambore dunia ke-3 berjumlah...", "320.000"],
-    ["PK", "Jambore ke-XXIII dilaksanakan di negara...", "Jepang"],
+    // --- PENGETAHUAN UMUM (PU) TAMBAHAN BARU ---
+    ["PU", "Maskapai penerbangan dari negara Iran adalah?", "Iran Air", "Emirates", "Gulf Air", "Qatar Airways", 0],
+    ["PU", "Maskapai penerbangan dari RRC (Republik Rakyat Tiongkok) adalah?", "China Airlines", "Cathay Pacific", "JAL", "Korean Air", 0],
+    ["PU", "Maskapai penerbangan dari negara India adalah?", "Indian Airlines", "Air Ceylon", "Garuda Indonesia", "PIA", 0],
+    ["PU", "Kantor berita dari negara Indonesia adalah?", "Antara", "Reuter", "Tass", "Xinhua", 0],
+    ["PU", "Kantor berita dari negara Polandia adalah?", "PAP", "Ager press", "CTK", "Tanjug", 0],
+    ["PU", "Kantor berita dari negara Iran adalah?", "IRNA", "MENA", "Al Jazeera", "Tass", 0],
+    ["PU", "Nama latin dari hewan Babirusa adalah?", "Babirussa babirussa", "Crocodylus novaeguieae", "Elephas indicus", "Tragulus", 0],
+    ["PU", "Nama latin dari hewan Kancil / Kelinci adalah?", "Trugulus", "Gervus", "Lepus", "Dugong dugong", 0],
+    ["PU", "Nama latin dari hewan Rusa adalah?", "Gervus", "Trugulus", "Elephas", "Rhinoceros", 0],
+    ["PU", "Lagu kebangsaan dari negara Jepang adalah?", "Kimigayo", "Negaraku", "Yana Gana Mana", "Arirang", 0],
+    ["PU", "Kantor berita dari negara Rumania adalah?", "Ager press", "PAP", "MENA", "CTK", 0],
+    ["PU", "Berapa luas wilayah daratan dan lautan Republik Indonesia (keseluruhan)?", "5.193.252 km²", "1.904.569 km²", "3.288.683 km²", "4.193.252 km²", 0],
+    ["PU", "Berapa luas wilayah daratan Indonesia?", "1.904.569 km²", "3.288.683 km²", "5.193.252 km²", "2.504.569 km²", 0],
+    ["PU", "Berapa luas wilayah Provinsi Bali?", "5.561 km²", "4.200 km²", "6.780 km²", "3.561 km²", 0],
+    ["PU", "Presiden pertama Indonesia (Ir. Soekarno) juga mendapat julukan sebagai?", "Proklamator", "Bapak Pembangunan", "Bapak Reformasi", "Bapak Koperasi", 0],
+    ["PU", "Danau Towuti terletak di provinsi?", "Sulawesi Selatan", "Sumatera Utara", "Sulawesi Tengah", "Papua", 0],
+    ["PU", "Pulau terbesar di Indonesia adalah?", "Pulau Kalimantan", "Pulau Sumatera", "Pulau Papua", "Pulau Sulawesi", 0],
+    ["PU", "Provinsi terpadat penduduknya di Indonesia adalah?", "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "Banten", 0],
+    ["PU", "Provinsi terbanyak penduduknya di Indonesia adalah?", "Jawa Timur", "Jawa Barat", "Jawa Tengah", "Sumatera Utara", 0],
+    ["PU", "Motto dari Departemen Keuangan adalah?", "Nagara Dana Raksa", "Jalesveva Jayamahe", "Rastra Sewakottama", "Kartika Eka Paksi", 0],
 
-    // --- SEJARAH TANGERANG (Total 35 Soal) ---
-    ["Sejarah Tangerang", "Secara historis, nama 'Tangerang' pada mulanya berasal dari kata bahasa Sunda 'Tangeran' yang berarti...", "Pertahanan", "Sungai Besar", "Tanda / Batas Tugu", "Kerajaan", 2],
-    ["Sejarah Tangerang", "Tugu 'Tangeran' dibangun oleh putra Sultan Ageng Tirtayasa dari Kesultanan Banten yang bernama...", "Pangeran Jayakarta", "Pangeran Soegiri", "Pangeran Diponegoro", "Aria Wangsakara", 1],
-    ["Sejarah Tangerang", "Batas alam yang memisahkan wilayah kekuasaan VOC (Kompeni Belanda) di timur dan wilayah Kesultanan Banten di barat adalah...", "Sungai Ciliwung", "Sungai Cidurian", "Sungai Cisadane", "Gunung Karang", 2],
-    ["Sejarah Tangerang", "Pada masa perlawanan terhadap VOC, Kesultanan Banten mengirimkan tiga maulana (pemimpin) untuk membuat pertahanan di Tangerang. Ketiga maulana tersebut dikenal dengan sebutan...", "Tiga Macan", "Tilu Tanglu", "Tiga Benteng", "Tri Sula", 1],
-    ["Sejarah Tangerang", "Tilu Tanglu (Tiga Pilar) yang diutus Kesultanan Banten adalah Aria Yudhanegara, Aria Jaya Santika, dan...", "Aria Wiratanudatar", "Tumenggung Suradiningrat", "Aria Wangsakara", "Pangeran Soegiri", 2],
-    ["Sejarah Tangerang", "Daerah yang konon menjadi pusat kedudukan dan pertahanan tiga maulana (Tilu Tanglu) tersebut dipercaya menjadi cikal-bakal kecamatan...", "Balaraja", "Cikupa", "Tigaraksa", "Curug", 2],
-    ["Sejarah Tangerang", "Aria Wangsakara merupakan pahlawan nasional yang sangat dihormati di Kabupaten Tangerang, beliau juga dikenal sebagai tokoh ulama dan keturunan dari raja...", "Mataram", "Sumedang Larang", "Cirebon", "Pajajaran", 1],
-    ["Sejarah Tangerang", "Pemerintahan awal masyarakat Tangerang di bawah pimpinan tiga aria tersebut akhirnya harus tumbang akibat perjanjian penyerahan kekuasaan wilayah ke VOC pada tanggal...", "17 April 1684", "17 Agustus 1945", "9 November 1943", "27 Desember 1943", 0],
-    ["Sejarah Tangerang", "Menurut sejarah, prasasti atau batu bata yang dibangun sebagai 'Tangeran' di wilayah Gerendeng bertuliskan abjad...", "Sunda Wiwitan", "Pegon (Arab Gundul) dengan bahasa Jawa kuno", "Pallawa", "Sansekerta", 1],
-    ["Sejarah Tangerang", "Sebelum berdirinya Kota Tangerang dan Tangsel, seluruh wilayahnya merupakan satu kesatuan di bawah Kabupaten Tangerang yang zaman dahulu dijuluki daerah...", "Sunda Kelapa", "Ommelanden", "Batavia", "Benteng", 3],
-    ["Sejarah Tangerang", "Peraturan Daerah (Perda) Kabupaten Tangerang Nomor 2 Tahun 2020 mengubah ketetapan Hari Jadi Kabupaten Tangerang menjadi tanggal...", "27 Desember 1943", "13 Oktober 1632", "17 April 1684", "9 November 1943", 1],
-    ["Sejarah Tangerang", "Perubahan Hari Jadi Kabupaten Tangerang ke 13 Oktober 1632 didasarkan pada peristiwa heroik...", "Gugurnya Mayor Daan Mogot", "Proklamasi Kemerdekaan", "Diangkatnya Aria Wangsakara menjadi tumenggung", "Penyerahan wilayah Banten ke VOC", 2],
-    ["Sejarah Tangerang", "Pada masa penjajahan militer Jepang (9 November 1943), status pemerintahan Tangerang diubah dari 'Kewedanaan' menjadi...", "Provinsi (Syu)", "Kota Praja", "Kabupaten (Ken)", "Karesidenan", 2],
-    ["Sejarah Tangerang", "Bupati pertama Kabupaten Tangerang yang dilantik pada masa pemerintahan Jepang (1943-1944) adalah...", "Aria Wangsakara", "Raden Pandu Suradiningrat", "Atik Soeardi", "H. Tadjus Sobirin", 2],
-    ["Sejarah Tangerang", "Salah satu peristiwa pertempuran berdarah pejuang kemerdekaan di Tangerang yang menewaskan Mayor Daan Mogot pada awal 1946 dikenal dengan...", "Pertempuran Lengkong", "Bandung Lautan Api", "Palagan Ambarawa", "Puputan Margarana", 0],
-    ["Sejarah Tangerang", "Monumen Palagan Lengkong yang didirikan untuk mengenang peristiwa gugurnya Mayor Daan Mogot secara geografis kini terletak di kawasan...", "Tigaraksa", "BSD (Bumi Serpong Damai)", "Balaraja", "Curug", 1],
-    ["Sejarah Tangerang", "Sebelum pindah ke Tigaraksa, pusat pemerintahan lama Kabupaten Tangerang terletak di wilayah yang kini menjadi...", "Kota Tangerang Selatan", "Kota Tangerang", "Pasar Kemis", "Cikupa", 1],
-    ["Sejarah Tangerang", "Pusat Pemerintahan Kabupaten Tangerang resmi dipindahkan dari pusat kota lama ke Tigaraksa pada tahun...", "1984", "2000", "1993", "2010", 2],
-    ["Sejarah Tangerang", "Julukan paling terkenal bagi Kabupaten Tangerang karena banyaknya pabrik yang mendongkrak ekonomi warga adalah...", "Kota Hujan", "Kota Seribu Industri", "Kota Kembang", "Kota Pelajar", 1],
-    ["Sejarah Tangerang", "Slogan pembangunan Kabupaten Tangerang yang bermakna setia kepada pekerjaan untuk mencapai kesejahteraan masyarakat adalah...", "Teguh Beriman", "Bersih, Relegius, Sejahtera", "Satya Karya Kerta Raharja", "Bhinneka Tunggal Ika", 2],
-    ["Sejarah Tangerang", "Perusahaan daerah (BUMD) pengelola penyediaan air bersih milik Pemerintah Kabupaten Tangerang bernama...", "PDAM Tirta Musi", "PDAM Tirta Daroy", "Perumdam Tirta Kerta Raharja", "PDAM Tirta Pakuan", 2],
-    ["Sejarah Tangerang", "Kuliner tradisional legendaris identik daerah Tangerang berkuah santan kental dengan isian mie beras adalah...", "Sate Bandeng", "Gudeg", "Bika Ambon", "Laksa Tangerang", 3],
-    ["Sejarah Tangerang", "Etnis Tionghoa yang telah berabad-abad bermukim di pesisir Cisadane dan memiliki pembauran budaya unik dengan penduduk lokal Tangerang dikenal dengan sebutan...", "Cina Benteng", "Peranakan Hakka", "Totok", "Tionghoa Singkawang", 0],
-    ["Sejarah Tangerang", "Dalam lambang Kabupaten Tangerang, warna dasar hijau melambangkan...", "Keberanian", "Kesucian", "Kesuburan dan Kemakmuran", "Kewibawaan", 2],
-    ["Sejarah Tangerang", "Tangerang juga dikenal memiliki kerajinan tradisional berupa topi anyaman yang terbuat dari bahan...", "Rotan", "Bambu", "Pandan", "Eceng Gondok", 1],
-    ["Sejarah Tangerang", "Pada masa pergerakan nasional (1926), pernah terjadi pemberontakan buruh dan petani melawan tuan tanah partikelir di wilayah...", "Lengkong", "Balaraja", "Cikupa", "Tigaraksa", 1],
+    // --- PENGETAHUAN KEPRAMUKAAN (PK) ---
+    ["PK", "Pada tahun berapa Baden-Powell dianugerahi gelar kesatria?", "1909", "1907", "1920", "1912", 0],
+    ["PK", "Siapakah nama kakek Baden-Powell?", "William T. Smyth", "George S. Smyth", "Robert Stephenson", "Henry Powell", 0],
+    ["PK", "Tanggal berapakah ayah Baden-Powell meninggal dunia?", "11 Juni 1860", "22 Februari 1857", "8 Januari 1941", "14 Agustus 1865", 0],
+    ["PK", "Di Charterhouse School Baden-Powell mendapatkan julukan...", "Bathing-Towel", "Steevie", "Impeesa", "Lone Wolf", 0],
+    ["PK", "Diusia berapa Baden-Powell menamatkan sekolah di Charterhouse School?", "19 tahun", "17 tahun", "21 tahun", "18 tahun", 0],
+    ["PK", "Mafeking adalah sebuah kota di...", "Pedalaman Afrika Selatan", "London Utara, Inggris", "Nairobi, Kenya", "New Delhi, India", 0],
+    ["PK", "Pengepungan terhadap bangsa Boer selama kurang lebih...", "217 hari", "150 hari", "300 hari", "100 hari", 0],
+    ["PK", "Raja Dinuzulu, adalah Raja Zulu dari tahun...", "1884-1889", "1890-1895", "1875-1880", "1900-1905", 0],
+    ["PK", "Istri Baden-Powell adalah...", "Olave St. Clair Soames", "Agnes Baden-Powell", "Henrietta Grace Smyth", "Mary Stephenson", 0],
+    ["PK", "Baden-Powell menghabiskan masa tuanya di...", "Nyeri, Kenya", "Pretoria, Afrika Selatan", "London, Inggris", "Gilwell Park, Inggris", 0],
+    ["PK", "Buku Scouting Games ditulis pada tahun...", "1910", "1908", "1912", "1920", 0],
+    ["PK", "Anggota WOSM di seluruh dunia diperkirakan mencapai sekitar...", "31 juta orang", "10 juta orang", "50 juta orang", "25 juta orang", 0],
+    ["PK", "World Scout Conference (WSC) bertemu setiap...", "3 Tahun sekali", "4 Tahun sekali", "2 Tahun sekali", "5 Tahun sekali", 0],
+    ["PK", "JPO (Javansche Padvinders Organisatie) didirikan pada tahun...", "1916", "1912", "1928", "1945", 0],
+    ["PK", "Jambore Nasional (Jamnas) ke-8 diadakan di mana?", "Jatinangor, Sumedang, Jawa Barat", "Cibubur, DKI Jakarta", "Sibolangit, Sumatera Utara", "Baturaden, Jawa Tengah", 0],
+    ["PK", "Jambore Dunia ke-22 berada di...", "Kristianstad, Swedia", "Kananaskis, Kanada", "Essex, Inggris", "Yamaguchi, Jepang", 0],
+    ["PK", "Pada tahun 1939-1947 tidak diadakan jambore dunia karena...", "Perang Dunia II", "Krisis Ekonomi Global", "Perang Dunia I", "Wafatnya Baden-Powell", 0],
+    ["PK", "Boedi Oetomo berdiri pada tahun...", "20 Mei 1908", "28 Oktober 1928", "17 Agustus 1945", "10 November 1908", 0],
+    ["PK", "Tema Jambore Dunia ke-10 adalah...", "The Bamboo Jamboree", "Simply Scouting", "Many Lands, One World", "Building Tomorrow Today", 0],
+    ["PK", "IPINDO berdiri pada tahun...", "13-09-1951", "14-08-1961", "20-05-1950", "28-10-1945", 0],
+    ["PK", "Pemerintah mengeluarkan KEPPRES nomor berapa Tentang gerakan pramuka?", "KEPPRES NO. 238/61", "KEPPRES NO. 234/60", "KEPPRES NO. 238/65", "KEPPRES NO. 104/61", 0],
+    ["PK", "Kata 'Jambore' diambil dari salah satu bahasa suku di...", "Afrika", "Amerika Indian", "Aborigin Australia", "Inggris Kuno", 0],
+    ["PK", "Nama paman dari Baden-Powell adalah...", "Kolonel Henry Smyth", "William T. Smyth", "George Stephenson", "Arthur Soames", 0],
+    ["PK", "Pada tahun 1907 Baden-Powell mendapat undangan dari perkumpulan...", "Boys Brigade", "YMCA", "Scout Association", "Girl Guides", 0],
+    ["PK", "Buku terakhir yang ditulis Baden-Powell pada tahun 1940 bernama...", "More Sketches of Kenya", "Rovering to Success", "Scouting for Boys", "Aids to Scoutmastership", 0],
+    ["PK", "Warga kehormatan Baden-Powell pada tahun 1920 di daerah mana?", "Poole", "London", "Brownsea", "Mafeking", 0],
+    ["PK", "Penerbit buku Scouting for Boys adalah...", "Horace Cox", "Oxford Press", "Cambridge Publisher", "Pearson Education", 0],
+    ["PK", "The Jungle Book merupakan karya dari...", "Rudyard Kipling", "Baden-Powell", "Ernest Thompson Seton", "William Boyce", 0],
+    ["PK", "Karang Kehidupan ke-2 (dalam Rovering to Success) dikenal dengan...", "Karang Perjudian", "Karang Perjudian dan Undian", "Karang Minuman Keras", "Karang Wanita", 0],
+    ["PK", "Baden-Powell menerima sumbangan sebidang tanah dari sahabatnya yang bernama...", "William F. DeBois MacLaren", "Arthur Pearson", "King Edward VII", "William D. Boyce", 0],
+    ["PK", "Taman yang disumbangkan untuk tempat pelatihan pembina pramuka tersebut diberi nama...", "Gilwell Park", "Brownsea Island", "Mafeking Camp", "Olympia Park", 0],
+    ["PK", "Kepanjangan atau singkatan dari WAGGGS adalah...", "World Association of Girl Guides and Girl Scouts", "World Association of Girl Group and Girl Scouts", "World Alliance of Girl Guides and Girl Scouts", "World Assembly of Girl Guides and Girl Scouts", 0],
+    ["PK", "Jambore Nasional di Pasar Minggu Jakarta tahun 1955 diselenggarakan oleh...", "IPINDO", "Kwartir Nasional", "JPO", "Pandu Rakyat Indonesia", 0],
+    ["PK", "Jambore Dunia pertama diikuti berapa negara?", "34 negara", "24 negara", "50 negara", "15 negara", 0],
+    ["PK", "Jambore dunia ke-3 dikenal dengan sebutan...", "The Jamboree of Mud", "The Bamboo Jamboree", "The World Jamboree", "The Friendship Jamboree", 0],
+    ["PK", "Baden-Powell telah membuat suatu loncatan dalam sejarah, disebut...", "Leap of History", "History Maker", "The Great Leap", "Scouting Leap", 0],
+    ["PK", "Nama kecil dari Baden-Powell yang paling sering di panggil oleh keluarganya adalah...", "Steevie", "B.P.", "Stephe", "Rob", 0],
+    ["PK", "Siapa nama tiga anak dari Baden-Powell?", "Peter, Heather, dan Betty", "John, Mary, dan Agnes", "Arthur, Heather, dan Olave", "Peter, Agnes, dan Margaret", 0],
+    ["PK", "Pada tanggal berapa Baden-Powell diangkat menjadi Bapak Pandu Sedunia?", "6 Agustus 1920", "8 Januari 1941", "22 Februari 1907", "14 Agustus 1920", 0],
+    ["PK", "Kepala Biro Kepanduan Sedunia (WOSM) yang ke 3 adalah...", "Spry", "Laszlo Nagy", "Luc Panissod", "Eduardo Missoni", 0],
+    ["PK", "Yang menjadi ex-officio di WOSM adalah...", "Sekretaris Jendral", "Ketua WSC", "Chief Scout", "Ketua Komite Regional", 0],
+    ["PK", "Jambore Nasional tahun 1991 berada di...", "Cibubur, DKI Jakarta", "Jatinangor, Jawa Barat", "Sibolangit, Sumatera Utara", "Baturaden, Jawa Tengah", 0],
+    ["PK", "Jambore Dunia yang gagal dilaksanakan karena revolusi berada di...", "Neishabour, Iran", "Kairo, Mesir", "Athena, Yunani", "Manila, Filipina", 0],
+    ["PK", "Sejak tahun berapa Jambore Dunia dilaksanakan setiap empat tahun sekali secara reguler?", "1920", "1907", "1947", "1924", 0],
+    ["PK", "Jambore Dunia ke-1 berlokasi di bangunan yang unik yaitu...", "Gedung besar beratapkan kaca (Olympia)", "Taman nasional terbuka", "Pulau terpencil (Brownsea)", "Stadion sepak bola", 0],
+    ["PK", "Jamboreese memiliki arti...", "senyum gembira", "persahabatan dunia", "pandu sedunia", "tenda perdamaian", 0],
+    ["PK", "Apa hal menarik di Jambore Dunia ke-5?", "Ada 71 jembatan", "Diikuti 100 negara", "Diguyur hujan lumpur", "Ada atraksi pesawat", 0],
+    ["PK", "Jambore Dunia pertama yang berada di Asia bertema...", "Building Tomorrow Today", "Many Lands, One World", "Simply Scouting", "The Bamboo Jamboree", 0],
+    ["PK", "Di Gilwell Park, Inggris terdapat patung binatang apa sebagai simbol?", "Singa", "Serigala", "Gajah", "Kuda", 0],
+    ["PK", "Biro Kepanduan sedunia putri (WAGGGS) berkedudukan di kota...", "London, Inggris", "Jenewa, Swiss", "Paris, Perancis", "Kuala Lumpur, Malaysia", 0],
+    ["PK", "Pangkat militer terakhir yang disandang Baden-Powell adalah...", "Letnan Jendral", "Mayor Jendral", "Jendral Penuh", "Kolonel", 0],
+    ["PK", "Baden-Powell adalah seorang yang bertipe", "Pekerja keras"],
+    ["PK", "Saat bersama Kenneth Mc Laren Baden-Powell telah menghasilkan banyak pengalaman baik salah satunya", "Kedinasan"],
+    ["PK", "Buku yang di buat oleh Baden-Powell pada tahun 1896 adalah", "The Downfall of Prempeh"],
+    ["PK", "Penghargaan yang di terima Baden-Powell pada tahun 1900 adalah", "Companion Order of the Bath"],
+    ["PK", "Penghargaan yang di terima Baden-Powell pada tahun 1937 adalah", "Order of Merit"],
+    ["PK", "Baden-Powell mendapatkan gelar kehormatan di Universitas Toronto pada tahun", "1923"],
+    ["PK", "BP melengkapi buku Scouting For Boys dengan", "Gambar gambar yang dibuatnya sendiri"],
+    ["PK", "Karang kehidupan yang ke 3", "Karang minuman keras dan merokok"],
+    ["PK", "Kepanjangan WSC", "World Scout Conference"],
+    ["PK", "JPO atas prakarsa", "Sultan Pangeran Mangkunegara VII"],
+    ["PK", "BP singgah di Jakarta sepulang beliau mengikuti perhelatan Jambore Dunia di", "New Scout Wales, Australia"],
+    ["PK", "KEPPRES No. 238/61 Tentang gerakan Pramuka di tanda tangani oleh", "Perdana Menteri"],
+    ["PK", "Berapa pandu yang berbasah-basahan di suatu malam di Jambore pertama", "4.549"],
+    ["PK", "Jambore Dunia 7 diikuti oleh peserta sebanyak", "12.884"],
+    ["PK", "Pada Jambore Dunia ke-9 Terbit jurnal yang berjudul", "Jubilee Journal"],
+    ["PK", "Jambore Dunia ke-13 di datangi berapa negara", "87 Negara"],
+    ["PK", "Jambore Dunia ke-14 lebih populer dengan sebutan", "Nordjamb '75"],
+    ["PK", "Thema Jambore Dunia ke-17 adalah", "Many Lands, One World"],
+    ["PK", "Jambore Dunia keberapa yang menjadi Jambore dengan peserta terbesar", "ke-18"],
+    ["PK", "Jambore Dunia keberapa yang pertama kali di gelar di Amerika Latin", "ke-19"],
+    ["PK", "Jambore Dunia ke-20 di selenggarakan pada", "28 Desember 2002 hingga 7 Januari 2003"],
+    ["PK", "Jambore Dunia ke-21 bertepatan dengan perayaan", "100 tahunnya Gerakan Kepanduan"],
+    ["PK", "Thema Jambore Dunia ke-22", "Simply Scouting"],
+    ["PK", "Kegiatan Jambore Dunia ke-22 terbagi kedalam berapa kelompok kegiatan", "lima kelompok"],
+    ["PK", "Kegiatan IST adalah peserta Jambore berjumlah sekitar", "10.000 Pandu dewasa"],
+    ["PK", "sebuah regu IST terdiri dari 1 unit dengan anggota", "4-8 peserta"],
+    ["PK", "Jambore Dunia ke-23 di selenggarakan pada tahun", "2015"],
+    ["PK", "BP wafat pada tanggal", "8 Januari 1941"],
+    ["PK", "Kepanjangan dari BKS", "Biro Kepanduan Sedunia"],
+    ["PK", "Peristiwa Sumpah Pemuda pada tanggal", "28 Oktober 1928"],
+    ["PK", "Kepanjangan PKPI", "Perserikatan Kepanduan Puteri Indonesia"],
+    ["PK", "Jamnas dilaksanakan setiap", "5 Tahun sekali"],
+
+    // --- SEJARAH TANGERANG ---
+    ["Sejarah Tangerang", "Secara historis, nama 'Tangerang' pada mulanya berasal dari kata bahasa Sunda 'Tangeran' yang berarti...", "Tanda / Batas Tugu", "Pertahanan", "Sungai Besar", "Kerajaan", 0],
+    ["Sejarah Tangerang", "Tugu 'Tangeran' dibangun oleh putra Sultan Ageng Tirtayasa dari Kesultanan Banten yang bernama...", "Aria Wangsakara", "Pangeran Jayakarta", "Pangeran Diponegoro", "Pangeran Soegiri", 0],
+    ["Sejarah Tangerang", "Batas alam yang memisahkan wilayah kekuasaan VOC di timur dan wilayah Kesultanan Banten di barat adalah...", "Sungai Cisadane", "Sungai Ciliwung", "Sungai Cidurian", "Gunung Karang", 0],
+    ["Sejarah Tangerang", "Pada masa perlawanan terhadap VOC, Kesultanan Banten mengirimkan tiga maulana (pemimpin) yang dikenal dengan sebutan...", "Tilu Tanglu", "Tiga Macan", "Tiga Benteng", "Tri Sula", 0],
+    ["Sejarah Tangerang", "Tilu Tanglu (Tiga Pilar) yang diutus Kesultanan Banten adalah Aria Yudhanegara, Aria Jaya Santika, dan...", "Aria Wangsakara", "Aria Wiratanudatar", "Tumenggung Suradiningrat", "Pangeran Soegiri", 0],
+    ["Sejarah Tangerang", "Daerah yang konon menjadi pusat kedudukan dan pertahanan tiga maulana (Tilu Tanglu) dipercaya menjadi cikal-bakal kecamatan...", "Tigaraksa", "Balaraja", "Cikupa", "Curug", 0],
+    ["Sejarah Tangerang", "Aria Wangsakara merupakan pahlawan nasional yang sangat dihormati di Kabupaten Tangerang, beliau juga dikenal sebagai keturunan dari raja...", "Sumedang Larang", "Mataram", "Cirebon", "Pajajaran", 0],
+    ["Sejarah Tangerang", "Pemerintahan awal masyarakat Tangerang di bawah pimpinan tiga aria tumbang akibat perjanjian penyerahan kekuasaan ke VOC pada tanggal...", "17 April 1684", "17 Agustus 1945", "9 November 1943", "27 Desember 1943", 0],
+    ["Sejarah Tangerang", "Menurut sejarah, prasasti atau batu bata yang dibangun sebagai 'Tangeran' di wilayah Gerendeng bertuliskan abjad...", "Pegon (Arab Gundul) dengan bahasa Jawa kuno", "Sunda Wiwitan", "Pallawa", "Sansekerta", 0],
+    ["Sejarah Tangerang", "Sebelum berdirinya Kota Tangerang dan Tangsel, seluruh wilayahnya merupakan satu kesatuan yang pada zaman VOC dijuluki daerah...", "Ommelanden", "Sunda Kelapa", "Batavia", "Benteng", 0],
+    ["Sejarah Tangerang", "Peraturan Daerah (Perda) Kabupaten Tangerang Nomor 2 Tahun 2020 mengubah ketetapan Hari Jadi Kabupaten Tangerang menjadi tanggal...", "13 Oktober 1632", "27 Desember 1943", "17 April 1684", "9 November 1943", 0],
+    ["Sejarah Tangerang", "Perubahan Hari Jadi Kabupaten Tangerang ke 13 Oktober 1632 didasarkan pada peristiwa heroik...", "Diangkatnya Aria Wangsakara menjadi tumenggung", "Gugurnya Mayor Daan Mogot", "Proklamasi Kemerdekaan", "Penyerahan wilayah Banten ke VOC", 0],
+    ["Sejarah Tangerang", "Pada masa penjajahan militer Jepang (1943), status pemerintahan Tangerang diubah dari 'Kewedanaan' menjadi...", "Kabupaten (Ken)", "Provinsi (Syu)", "Kota Praja", "Karesidenan", 0],
+    ["Sejarah Tangerang", "Bupati pertama Kabupaten Tangerang yang dilantik pada masa pemerintahan Jepang (1943-1944) adalah...", "Atik Soeardi", "Aria Wangsakara", "Raden Pandu Suradiningrat", "H. Tadjus Sobirin", 0],
+    ["Sejarah Tangerang", "Salah satu peristiwa pertempuran berdarah di Tangerang yang menewaskan Mayor Daan Mogot pada awal 1946 dikenal dengan...", "Pertempuran Lengkong", "Bandung Lautan Api", "Palagan Ambarawa", "Puputan Margarana", 0],
+    ["Sejarah Tangerang", "Monumen Palagan Lengkong yang didirikan untuk mengenang peristiwa tersebut kini terletak di kawasan...", "BSD (Bumi Serpong Damai)", "Tigaraksa", "Balaraja", "Curug", 0],
+    ["Sejarah Tangerang", "Sebelum pindah ke Tigaraksa, pusat pemerintahan lama Kabupaten Tangerang terletak di wilayah yang kini menjadi...", "Kota Tangerang", "Kota Tangerang Selatan", "Pasar Kemis", "Cikupa", 0],
+    ["Sejarah Tangerang", "Pusat Pemerintahan Kabupaten Tangerang resmi dipindahkan dari pusat kota lama ke Tigaraksa pada tahun...", "2000", "1984", "1993", "2010", 0],
+    ["Sejarah Tangerang", "Julukan paling terkenal bagi Kabupaten Tangerang karena banyaknya pabrik yang mendongkrak ekonomi warga adalah...", "Kota Seribu Industri", "Kota Hujan", "Kota Kembang", "Kota Pelajar", 0],
+    ["Sejarah Tangerang", "Slogan pembangunan Kabupaten Tangerang yang bermakna setia kepada pekerjaan untuk mencapai kesejahteraan masyarakat adalah...", "Satya Karya Kerta Raharja", "Teguh Beriman", "Bersih, Relegius, Sejahtera", "Bhinneka Tunggal Ika", 0],
+    ["Sejarah Tangerang", "Perusahaan daerah (BUMD) pengelola penyediaan air bersih milik Pemerintah Kabupaten Tangerang bernama...", "Perumdam Tirta Kerta Raharja", "PDAM Tirta Musi", "PDAM Tirta Daroy", "PDAM Tirta Pakuan", 0],
+    ["Sejarah Tangerang", "Kuliner tradisional legendaris identik daerah Tangerang berkuah santan kental dengan isian mie beras adalah...", "Laksa Tangerang", "Sate Bandeng", "Gudeg", "Bika Ambon", 0],
+    ["Sejarah Tangerang", "Etnis Tionghoa yang telah bermukim di pesisir Cisadane dan memiliki pembauran budaya unik dengan penduduk lokal Tangerang dikenal dengan sebutan...", "Cina Benteng", "Peranakan Hakka", "Totok", "Tionghoa Singkawang", 0],
+    ["Sejarah Tangerang", "Dalam lambang Kabupaten Tangerang, warna dasar hijau melambangkan...", "Kesuburan dan Kemakmuran", "Keberanian", "Kesucian", "Kewibawaan", 0],
+    ["Sejarah Tangerang", "Tangerang juga dikenal memiliki kerajinan tradisional berupa topi anyaman yang terbuat dari bahan...", "Bambu", "Rotan", "Pandan", "Eceng Gondok", 0],
+    ["Sejarah Tangerang", "Pada masa pergerakan nasional (1926), pernah terjadi pemberontakan buruh dan petani melawan tuan tanah partikelir di wilayah...", "Balaraja", "Lengkong", "Cikupa", "Tigaraksa", 0],
     ["Sejarah Tangerang", "Nama resmi pusat layanan informasi berbasis website milik Pemkab Tangerang adalah...", "tangerangkab.go.id", "tangerang.id", "kabtangerang.com", "pemda-tangerang.net", 0],
-    ["Sejarah Tangerang", "Bupati Tangerang yang dilantik pada periode 2013-2023 (menjabat dua periode) adalah...", "Ismet Iskandar", "Ahmed Zaki Iskandar", "Andi Ony", "Atik Soeardi", 1],
-    ["Sejarah Tangerang", "Kabupaten Tangerang secara administratif merupakan bagian dari provinsi...", "Jawa Barat", "DKI Jakarta", "Banten", "Jawa Tengah", 2],
-    ["Sejarah Tangerang", "Pakaian adat khas kaum pria Kabupaten Tangerang hasil alkulturasi budaya Sunda, Betawi, dan Tionghoa sering disebut dengan...", "Baju Pangsi", "Baju Sadariah", "Pangsi Tangerangan", "Baju Koko", 2],
-    ["Sejarah Tangerang", "Perpaduan kesenian musik tradisional Betawi dan alat musik gesek Tionghoa yang sangat lekat dengan masyarakat budaya Tangerang adalah...", "Ketoprak", "Gambang Kromong", "Tarling", "Angklung Buhun", 1],
-    ["Sejarah Tangerang", "Nama 'Tigaraksa' konon diyakini masyarakat sebagai bentuk penghormatan dan pengingat akan kebesaran...", "Tiga sungai (Cisadane, Cidurian, Cimanceuri)", "Tiga tokoh Maulana pimpinan pertahanan (Tilu Tanglu)", "Tiga benteng kompeni Belanda", "Tiga raja Banten", 1],
-    ["Sejarah Tangerang", "Dalam bahasa Sansekerta yang diserap ke Sunda Kuno, kata 'Raksa' pada nama 'Tigaraksa' memiliki arti...", "Cahaya", "Memelihara / Menjaga / Penjaga", "Perang", "Benteng", 1],
-    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang pertama melahirkan daerah otonom baru pada tahun 1993, yaitu...", "Kota Serang", "Kota Cilegon", "Kota Tangerang", "Kota Tangerang Selatan", 2],
-    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang kedua kalinya disahkan pada tahun 2008, melahirkan otonomi baru yaitu...", "Kabupaten Serang", "Kota Depok", "Kota Tangerang Selatan (Tangsel)", "Kota Cilegon", 2]
+    ["Sejarah Tangerang", "Bupati Tangerang yang dilantik pada periode 2013-2023 (menjabat dua periode) adalah...", "Ahmed Zaki Iskandar", "Ismet Iskandar", "Andi Ony", "Atik Soeardi", 0],
+    ["Sejarah Tangerang", "Kabupaten Tangerang secara administratif merupakan bagian dari provinsi...", "Banten", "Jawa Barat", "DKI Jakarta", "Jawa Tengah", 0],
+    ["Sejarah Tangerang", "Pakaian adat khas kaum pria Kabupaten Tangerang hasil alkulturasi budaya Sunda, Betawi, dan Tionghoa sering disebut dengan...", "Pangsi Tangerangan", "Baju Pangsi", "Baju Sadariah", "Baju Koko", 0],
+    ["Sejarah Tangerang", "Perpaduan kesenian musik tradisional Betawi dan alat musik gesek Tionghoa yang sangat lekat dengan masyarakat budaya Tangerang adalah...", "Gambang Kromong", "Ketoprak", "Tarling", "Angklung Buhun", 0],
+    ["Sejarah Tangerang", "Nama 'Tigaraksa' konon diyakini masyarakat sebagai bentuk penghormatan dan pengingat akan kebesaran...", "Tiga tokoh Maulana pimpinan pertahanan (Tilu Tanglu)", "Tiga sungai (Cisadane, Cidurian, Cimanceuri)", "Tiga benteng kompeni Belanda", "Tiga raja Banten", 0],
+    ["Sejarah Tangerang", "Dalam bahasa Sansekerta yang diserap ke Sunda Kuno, kata 'Raksa' pada nama 'Tigaraksa' memiliki arti...", "Memelihara / Menjaga / Penjaga", "Cahaya", "Perang", "Benteng", 0],
+    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang pertama melahirkan daerah otonom baru pada tahun 1993, yaitu...", "Kota Tangerang", "Kota Serang", "Kota Cilegon", "Kota Tangerang Selatan", 0],
+    ["Sejarah Tangerang", "Pemekaran wilayah Kabupaten Tangerang yang kedua kalinya disahkan pada tahun 2008, melahirkan otonomi baru yaitu...", "Kota Tangerang Selatan (Tangsel)", "Kabupaten Serang", "Kota Depok", "Kota Cilegon", 0]
 ];
 
-// Otomatis menyesuaikan total soal berdasarkan isi bank soal (Sekarang Genap 100)
 let totalQuestionsInExam = 0; 
 const questionsPerPage = 10;
 let timeRemaining = 600; // 10 Menit
@@ -288,33 +395,86 @@ function shuffle(array) {
     return array;
 }
 
-// Menyiapkan soal untuk format ESAI dengan pendeteksi pintar
+// Menyiapkan soal untuk ujian yang dicampur (Hybrid mode)
 function prepareExamQuestions() {
-    let puQuestions = rawData.filter(q => q[0] === "PU").map(q => ({
-        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
-    }));
     
-    let pkQuestions = rawData.filter(q => q[0] === "PK").map(q => ({
-        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
-    }));
-    
-    let sejarahQuestions = rawData.filter(q => q[0] === "Sejarah Tangerang").map(q => ({
-        category: q[0], text: q[1], correctAnswer: q.length < 5 ? q[2] : q[q[6] + 2]
-    }));
+    function formatToMultipleChoice(rawList) {
+        return rawList.map(q => {
+            // Jika formatnya Lengkap / Manual (Punya pengecoh A,B,C,D) -> array length >= 7
+            if (q.length >= 7) {
+                let optionsList = [
+                    { text: q[2], isCorrect: true },
+                    { text: q[3], isCorrect: false },
+                    { text: q[4], isCorrect: false },
+                    { text: q[5], isCorrect: false }
+                ];
+                shuffle(optionsList);
+                return {
+                    category: q[0],
+                    text: q[1],
+                    options: optionsList.map(opt => opt.text),
+                    answer: optionsList.findIndex(opt => opt.isCorrect)
+                };
+            } 
+            // Jika formatnya hanya Soal dan Kunci Jawaban (Data baru PK) -> Buat Pengecoh Dinamis dari Bank Soal!
+            else {
+                let correctAns = q[2];
+                
+                // Ambil semua jawaban unik dari kategori yang sama sebagai calon pengecoh
+                let allPossibleFakes = [...new Set(rawList.map(item => item[2]).filter(item => item !== correctAns))];
+                shuffle(allPossibleFakes);
+                
+                // Ambil 3 jawaban palsu secara acak
+                let selectedFakes = allPossibleFakes.slice(0, 3);
+                
+                // Fallback jika bank soal kurang
+                while(selectedFakes.length < 3) {
+                    selectedFakes.push("Jawaban Opsi " + (selectedFakes.length + 1));
+                }
+                
+                let optionsList = [
+                    { text: correctAns, isCorrect: true },
+                    { text: selectedFakes[0], isCorrect: false },
+                    { text: selectedFakes[1], isCorrect: false },
+                    { text: selectedFakes[2], isCorrect: false }
+                ];
+                shuffle(optionsList);
+                
+                return {
+                    category: q[0],
+                    text: q[1],
+                    options: optionsList.map(opt => opt.text),
+                    answer: optionsList.findIndex(opt => opt.isCorrect)
+                };
+            }
+        });
+    }
 
+    let puRaw = rawData.filter(q => q[0] === "PU");
+    let pkRaw = rawData.filter(q => q[0] === "PK");
+    let sejarahRaw = rawData.filter(q => q[0] === "Sejarah Tangerang");
+
+    let puQuestions = formatToMultipleChoice(puRaw);
+    let pkQuestions = formatToMultipleChoice(pkRaw);
+    let sejarahQuestions = formatToMultipleChoice(sejarahRaw);
+
+    // Acak keseluruhan stok soal di tiap kategori
     shuffle(puQuestions);
     shuffle(pkQuestions);
     shuffle(sejarahQuestions);
 
-    let selectedPU = puQuestions.slice(0, 40); // Akan ambil 40 dari 50 persediaan
-    let selectedPK = pkQuestions.slice(0, 40); // Akan ambil 40 dari 50 persediaan
-    let selectedSejarah = sejarahQuestions.slice(0, 20); // Akan ambil 20 dari persediaan
+    // Ambil porsi ujian: 40 PU, 40 PK, 20 Sejarah (Total 100)
+    let selectedPU = puQuestions.slice(0, 40); 
+    let selectedPK = pkQuestions.slice(0, 40); 
+    let selectedSejarah = sejarahQuestions.slice(0, 20); 
 
     let combinedQuestions = [...selectedPU, ...selectedPK, ...selectedSejarah];
+    
+    // Acak urutan keluarnya 100 soal tersebut agar campur aduk
     shuffle(combinedQuestions);
 
     examQuestions = combinedQuestions;
-    totalQuestionsInExam = examQuestions.length; // Otomatis menjadi 100
+    totalQuestionsInExam = examQuestions.length;
 }
 
 function switchScreen(screenId) {
@@ -340,7 +500,7 @@ function startExam() {
     
     prepareExamQuestions();
     
-    userAnswers = new Array(totalQuestionsInExam).fill("");
+    userAnswers = new Array(totalQuestionsInExam).fill(null);
     currentPage = 0;
     timeRemaining = 600; 
     
@@ -362,7 +522,7 @@ function startExam() {
 function retakeExam() {
     prepareExamQuestions();
     
-    userAnswers = new Array(totalQuestionsInExam).fill("");
+    userAnswers = new Array(totalQuestionsInExam).fill(null);
     currentPage = 0;
     timeRemaining = 600;
     
@@ -393,14 +553,24 @@ function renderPage() {
     
     pageQuestions.forEach((q, localIndex) => {
         const globalIndex = startIndex + localIndex;
-        let currentAnswer = userAnswers[globalIndex];
+        let optionsHTML = "";
         
+        q.options.forEach((opt, optIndex) => {
+            const isChecked = userAnswers[globalIndex] === optIndex ? "checked" : "";
+            optionsHTML += `
+                <label class="option-label">
+                    <input type="radio" name="q${globalIndex}" value="${optIndex}" onchange="saveAnswer(${globalIndex}, ${optIndex})" ${isChecked}>
+                    ${String.fromCharCode(65 + optIndex)}. ${opt}
+                </label>
+            `;
+        });
+
         container.innerHTML += `
             <div class="question-card">
                 <div class="question-category">${q.category}</div>
                 <div class="question-text">${globalIndex + 1}. ${q.text}</div>
                 <div class="options">
-                    <textarea class="essay-input" rows="2" placeholder="Ketik jawaban Anda di sini..." oninput="saveAnswer(${globalIndex}, this.value)">${currentAnswer}</textarea>
+                    ${optionsHTML}
                 </div>
             </div>
         `;
@@ -410,8 +580,8 @@ function renderPage() {
     window.scrollTo(0, 0);
 }
 
-function saveAnswer(globalIndex, value) {
-    userAnswers[globalIndex] = value;
+function saveAnswer(globalIndex, answerIndex) {
+    userAnswers[globalIndex] = parseInt(answerIndex);
 }
 
 function changePage(direction) {
@@ -449,18 +619,14 @@ function forceSubmitExam() {
     processResults();
 }
 
-// LOGIKA PENILAIAN ESAI
+// LOGIKA PENILAIAN PILIHAN GANDA
 function processResults() {
     clearInterval(timerInterval);
 
     let correctCount = 0;
 
     examQuestions.forEach((q, index) => {
-        // Mengubah huruf menjadi kecil semua & menghapus spasi awal/akhir agar pengecekan lebih adil
-        let userAns = userAnswers[index].toString().toLowerCase().trim();
-        let correctAns = q.correctAnswer.toString().toLowerCase().trim();
-        
-        if(userAns === correctAns) {
+        if(userAnswers[index] === q.answer) {
             correctCount++;
         }
     });
@@ -469,7 +635,7 @@ function processResults() {
 
     document.getElementById("resultName").textContent = currentUser;
     document.getElementById("resultScore").textContent = finalScore;
-    document.getElementById("resultDetail").textContent = `Anda berhasil menjawab ejaan dengan tepat ${correctCount} dari total ${totalQuestionsInExam} soal.`;
+    document.getElementById("resultDetail").textContent = `Anda berhasil menjawab benar ${correctCount} dari total ${totalQuestionsInExam} soal.`;
     
     let db = JSON.parse(localStorage.getItem('pramukaTulisDb') || '[]');
     let pastAttempts = db.filter(entry => entry.nama.toLowerCase() === currentUser.toLowerCase());
